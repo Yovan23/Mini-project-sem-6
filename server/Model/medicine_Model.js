@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const medicineSchema = new mongoose.Schema({
     medicineId: { 
@@ -18,15 +19,13 @@ const medicineSchema = new mongoose.Schema({
         type: Number, 
         required: true 
     },
-    stockQuantity: { 
-        type: Number, 
-        required: true 
-    },
-    expiryDate: { 
-        type: Date,
-        required: true  
-    },
-});
+    // expiryDate: { 
+    //     type: Date,
+    //     required: true ,
+    //     default: Date.now
+    // },
+},{timestamps:true});
+
 
 
 const Medicine = new mongoose.model("Medicine",medicineSchema ); 

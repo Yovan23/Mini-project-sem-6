@@ -1,0 +1,31 @@
+[
+  {
+    $lookup: {
+      from: "admins",
+      localField: "username",
+      foreignField: "owner",
+      as: "Adminsno"
+    }
+  },
+  {
+    $addFields: {
+      AdminsNoOf: {
+        $size: "$Adminsno"
+      }
+    }
+  },
+  {
+    $project: {
+      AdminsNoOf: 1,
+      ownerId: 1,
+      username: 1,
+      cityName: 1,
+      phoneNo: 1,
+      email: 1,
+      password: 1,
+      role: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    }
+  }
+]

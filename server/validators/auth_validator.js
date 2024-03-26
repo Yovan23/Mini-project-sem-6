@@ -10,6 +10,9 @@ const singupSchema = z.object({
     .string({required_error:"Password is required"})
     .min(5, {msg: "Password at lest 5 chars. "})
     .max(10, {msg: "Password not more than 10 chars."}),
+    role: z
+    .string({required_error:"Password is required"})
+        ,
 });
 
 
