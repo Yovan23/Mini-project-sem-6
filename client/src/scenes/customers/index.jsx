@@ -6,7 +6,7 @@ import Header from "components/Header";
 import axios from "axios";
 
 const Customers = () => {
-  const { data: medicinesData, isLoading: medicinesLoading } = useGetMedicinesQuery();
+  const { isLoading: medicinesLoading } = useGetMedicinesQuery();
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -33,10 +33,10 @@ const Customers = () => {
   }, []);
 
   useEffect(() => {
-    if (medicinesData) {
-      setSuggestions(medicinesData);
+    if (data) {
+      setSuggestions(data);
     }
-  }, [medicinesData]);
+  }, [data]);
 
   const handleOpenBillModal = (billId) => {
     setSelectedBillId(billId);
@@ -124,7 +124,7 @@ const Customers = () => {
       const handleMedicineAdd = async () => {
         const { medicineName, quantity } = formData;
         if (medicineName && quantity) {
-          const selectedMedicine = medicinesData.find(medicine => medicine.medicineName === medicineName);
+          const selectedMedicine = data.find(medicine => medicine.medicineName === medicineName);
           if (selectedMedicine) {
             const subTotal = selectedMedicine.unitPrice * parseInt(quantity);
             const newMedicine = {
@@ -145,14 +145,14 @@ const Customers = () => {
             });
             setSuggestions([]);
           } else {
-            console.error("Selected medicine not found in medicinesData");
+            console.error("Selected medicine not found in data");
           }
         } else {
           console.error("Medicine name and quantity are required");
         }
       
-      if (medicinesData) {
-        setSuggestions(medicinesData);
+      if (data) {
+        setSuggestions(data);
       }
       // setIsMedicineAdded(true); 
   };

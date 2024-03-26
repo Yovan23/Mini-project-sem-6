@@ -13,10 +13,10 @@ router.route('/register').post(validate(singupSchema), Controllers.register);
 router.route('/login').post(validate(singinSchema), Controllers.login);
 router.route('/change_Password').post(Controllers.change_Password);
 
-router.use(authenticateUser);
+// router.use( authenticateUser);
 
 router.route('/medicine').post(Controllers.medicine);
-router.route('/medicineFind').get(Controllers.medicineFind);
+router.route('/medicineFind').get((verifyToken),Controllers.medicineFind);
 router.route('/medicineUpdate/:id').put(Controllers.medicineUpdate);
 router.route('/medicineDelete/:id').delete(Controllers.medicineDelete);
 

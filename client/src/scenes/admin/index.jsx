@@ -21,13 +21,15 @@ const Admin = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   // eslint-disable-next-line
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const { data, isLoading, refetch } = useGetAdminsQuery();
+  const { isLoading, refetch } = useGetAdminsQuery();
+  const [data, setData] = useState([]);
   const [{ isLoading: isDeleting }] = useAdminDeleteMutation();
   const [adminUpdate] = useAdminUpdateMutation();
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
     setIsSnackbarOpen(true);
   };
+  // console.log(data);
 
   useEffect(() => {
     const fetchDataToUpdate = async () => {
@@ -46,6 +48,26 @@ const Admin = () => {
       fetchDataToUpdate();
     }
   }, [isUpdateDialogOpen, updateData]);
+
+  const fun = async () => {
+    const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
+    
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/adminFind', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      setData(response.data);
+    } catch (error) {
+      throw new Error('hereistheerro'); // Throw an error if the request fails
+    }
+  }
+  
+
+  useEffect(()=>{
+    fun();
+  },[])
 
   const handleUpdate = async (rowData) => {
     setIsUpdateDialogOpen(true);

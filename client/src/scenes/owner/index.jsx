@@ -20,7 +20,8 @@ const Owner = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [, setUpdateSuccess] = useState(false);
   const [{ isLoading: isDeleting }] = useOwnerDeleteMutation();
-  const { data, isLoading, refetch } = useGetOwnersQuery();
+  const {  isLoading, refetch } = useGetOwnersQuery();
+  const [data, setData] = useState([]);
   const [ownerUpdate] = useOwnerUpdateMutation();
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
@@ -45,6 +46,25 @@ const Owner = () => {
     refetch();
   }, [isUpdateDialogOpen, updateData]);
 
+  const fun = async () => {
+    const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
+    
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/ownerFind', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      setData(response.data);
+    } catch (error) {
+      throw new Error('hereistheerro'); // Throw an error if the request fails
+    }
+  }
+  
+
+  useEffect(()=>{
+    fun();
+  },[])
   const handleUpdate = async (rowData) => {
     setIsUpdateDialogOpen(true);
     setUpdateData(rowData); 

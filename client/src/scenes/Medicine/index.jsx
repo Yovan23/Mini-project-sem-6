@@ -16,6 +16,7 @@ const Medicine = () => {
   const [updateData, setUpdateData] = useState({});
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
+  const [data, setData] = useState([]);
   const [sort, setSort] = useState({});
   const [search, setSearch] = useState("");
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
@@ -23,11 +24,11 @@ const Medicine = () => {
   // eslint-disable-next-line
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const { data, isLoading , refetch} = useGetMedicinesQuery({
-    page: page + 1,
-    pageSize,
-    sort: JSON.stringify(sort),
-    search,
+  const {  isLoading , refetch} = useGetMedicinesQuery({
+  //   page: page + 1,
+  //   pageSize,
+  //   sort: JSON.stringify(sort),
+  //   search,
   });
   const [medicineUpdate] = useMedicineUpdateMutation();
   const showSnackbar = (message) => {
@@ -51,7 +52,25 @@ const Medicine = () => {
       fetchDataToUpdate();
     }
   }, [isUpdateDialogOpen, updateData]);
+  const fun = async () => {
+    const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
+    
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/ownerFind', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      setData(response.data);
+    } catch (error) {
+      throw new Error('hereistheerro'); // Throw an error if the request fails
+    }
+  }
+  
 
+  useEffect(()=>{
+    fun();
+  },[])
   const handleUpdate = async (rowData) => {
     setIsUpdateDialogOpen(true);
     setUpdateData(rowData); 
