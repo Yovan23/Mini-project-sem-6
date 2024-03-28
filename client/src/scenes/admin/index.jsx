@@ -21,7 +21,7 @@ const Admin = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   // eslint-disable-next-line
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const { isLoading, refetch } = useGetAdminsQuery();
+  const {  isLoading } = useGetAdminsQuery();
   const [data, setData] = useState([]);
   const [{ isLoading: isDeleting }] = useAdminDeleteMutation();
   const [adminUpdate] = useAdminUpdateMutation();
@@ -116,7 +116,7 @@ const Admin = () => {
       console.log(updateData._id);
       await adminUpdate({ id: updateData._id, ...updateData });
       console.log("Successfully updated the admin data:", updateData);
-      refetch();
+      fun();
       showSnackbar("Update successful");
     } catch (error) {
       console.error("Error updating admin data:", error);
@@ -127,25 +127,39 @@ const Admin = () => {
     setIsAddDialogOpen(false);
     setNewAdminData({});
   };
+  // const handleDelete = async (rowData) => {
+  //   const confirmed = window.confirm("Are you sure you want to delete this Admin?");
+  //   if (!confirmed) return;
+  
+  //   try {
+  //     const response = await axios.delete(`http://localhost:5000/api/auth/adminDelete/${rowData._id}`);
+  //     refetch();
+  
+  //     if (response.status === 200) {
+  //       showSnackbar("Admin deleted successfully!");
+  //     } else {
+  //       console.error("Error deleting admin:", response.data);
+  //       showSnackbar("Error deleting admin. Please try again."); 
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting the item:", error);
+  //     showSnackbar("Unexpected error occurred. Please try again later."); 
+  //   }
+  // };
   const handleDelete = async (rowData) => {
     const confirmed = window.confirm("Are you sure you want to delete this Admin?");
     if (!confirmed) return;
   
     try {
-      const response = await axios.delete(`http://localhost:5000/api/auth/adminDelete/${rowData._id}`);
-  
-      if (response.status === 200) {
-        refetch();
-        showSnackbar("Admin deleted successfully!");
-      } else {
-        console.error("Error deleting admin:", response.data);
-        showSnackbar("Error deleting admin. Please try again."); 
-      }
+      await axios.delete(`http://localhost:5000/api/auth/adminDelete/${rowData._id}`);
+      showSnackbar("Admin deleted successfully!");
+      fun();
     } catch (error) {
-      console.error("Error deleting the item:", error);
-      showSnackbar("Unexpected error occurred. Please try again later."); 
+      console.error("Error deleting the admin:", error);
+      showSnackbar("Error deleting admin. Please try again.");
     }
   };
+  
   
   const handleAddInputChange = (e, field) => {
     const updatedValue = e.target.value;
@@ -186,7 +200,7 @@ const Admin = () => {
   
       const response = await axios.post('http://localhost:5000/api/auth/adminAdd', newAdminData);
       if (response.status === 201) {
-        refetch();
+        fun();
         showSnackbar("Admin added successfully");
         handleCloseAddDialog();
       } else {
@@ -263,7 +277,7 @@ const Admin = () => {
   };
   
   // const filteredAdmins = data?.filter(admin => admin.owner === loggedInOwner);
-
+// console.log(loggedInOwner);
   return (
     <Box m="1.5rem 2.5rem">
       <Header title="ADMINS" subtitle="Managing admins and list of admins" />

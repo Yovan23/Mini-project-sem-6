@@ -6,7 +6,7 @@ import Header from "components/Header";
 import axios from "axios";
 
 const Customers = () => {
-  const { isLoading: medicinesLoading } = useGetMedicinesQuery();
+  const { data: medicinesData, isLoading: medicinesLoading } = useGetMedicinesQuery();
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -33,10 +33,10 @@ const Customers = () => {
   }, []);
 
   useEffect(() => {
-    if (data) {
-      setSuggestions(data);
+    if (medicinesData) {
+      setSuggestions(medicinesData);
     }
-  }, [data]);
+  }, [medicinesData]);
 
   const handleOpenBillModal = (billId) => {
     setSelectedBillId(billId);
@@ -124,7 +124,7 @@ const Customers = () => {
       const handleMedicineAdd = async () => {
         const { medicineName, quantity } = formData;
         if (medicineName && quantity) {
-          const selectedMedicine = data.find(medicine => medicine.medicineName === medicineName);
+          const selectedMedicine = medicinesData.find(medicine => medicine.medicineName === medicineName);
           if (selectedMedicine) {
             const subTotal = selectedMedicine.unitPrice * parseInt(quantity);
             const newMedicine = {
@@ -145,14 +145,14 @@ const Customers = () => {
             });
             setSuggestions([]);
           } else {
-            console.error("Selected medicine not found in data");
+            console.error("Selected medicine not found in medicinesData");
           }
         } else {
           console.error("Medicine name and quantity are required");
         }
       
-      if (data) {
-        setSuggestions(data);
+      if (medicinesData) {
+        setSuggestions(medicinesData);
       }
       // setIsMedicineAdded(true); 
   };
@@ -201,8 +201,10 @@ const Customers = () => {
 
   return (
     <Box m="1.5rem 2.5rem">
-      <Header title="Bill Corner" subtitle="Creat the bill.." />
+      <Header title="Bill Corner" subtitle="Creat the bill..." />
+      
       <Box>
+        
         {!isOpenForm && (
           <Button
             variant="contained"
@@ -373,6 +375,13 @@ const Customers = () => {
 
 
       </Box>
+      <Typography sx={{ marginTop:"55px" , fontSize:"21px"}}>Steps to create billing:- </Typography>
+      <Typography sx={{ marginTop:"25px" , fontSize:"21px"}}>1. Click on "Create Bill" button.</Typography>
+      <Typography sx={{ marginTop:"5px" , fontSize:"21px"}}>2. enter details as per the field need.</Typography>
+      <Typography sx={{ marginTop:"5px" , fontSize:"21px"}}>3. Click on "Add Medicine" button, if you want to add more medicne then write again the quantity and medicine name and then again click on "Add Medicine" button.</Typography>
+      <Typography sx={{ marginTop:"5px" , fontSize:"21px"}}>4. After adding medicines as per the customer requirement click on "Submit" button.</Typography>
+      <Typography sx={{ marginTop:"5px" , fontSize:"21px"}}>5. It will generate the bill, and for priniting the bill, click on "Print" button.</Typography>
+      <Typography sx={{ marginTop:"5px" , fontSize:"21px"}}>6. Then again click on "Print" button for having hardcopy of the bill.</Typography>
     </Box>
   );
 };

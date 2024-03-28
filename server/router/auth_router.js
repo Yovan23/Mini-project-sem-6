@@ -8,7 +8,7 @@ const validate = require("../middlleware/validate_middleware");
 const { authenticateUser } = require('../middlleware/authMiddleware');
 const verifyToken = require('../middlleware/token');
 
-router.route("/").get(Controllers.home);
+router.route("/home").get(Controllers.home);
 router.route('/register').post(validate(singupSchema), Controllers.register);
 router.route('/login').post(validate(singinSchema), Controllers.login);
 router.route('/change_Password').post(Controllers.change_Password);
@@ -16,12 +16,13 @@ router.route('/change_Password').post(Controllers.change_Password);
 // router.use( authenticateUser);
 
 router.route('/medicine').post(Controllers.medicine);
-router.route('/medicineFind').get((verifyToken),Controllers.medicineFind);
+router.route('/medicineFind').get(Controllers.medicineFind);
 router.route('/medicineUpdate/:id').put(Controllers.medicineUpdate);
 router.route('/medicineDelete/:id').delete(Controllers.medicineDelete);
 
 router.route('/adminAdd').post(Controllers.adminAdd);
-router.route('/adminFind').get(Controllers.adminFind);
+router.route('/adminFind').get((authenticateUser),Controllers.adminFind);
+router.route('/adminsFind').get(Controllers.adminsFind);
 router.route('/adminUpdate/:id').put(Controllers.adminUpdate);
 router.route('/adminDelete/:id').delete(Controllers.adminDelete);
 
@@ -35,8 +36,8 @@ router.route('/billFind').get(Controllers.billFind);
 router.route('/billFindOne/:billId').get(Controllers.billFindOne);
 router.route('/billUpdate/:id').put(Controllers.addMedicineToBillController);
 
-router.route('/createOrder').post(Controllers.createOrder);
-router.route('/findOrder/:adminId').get(Controllers.findOrder);
+router.route('/createOrder').post((authenticateUser),Controllers.createOrder);
+router.route('/findOrder').get((authenticateUser),Controllers.findOrder);
 router.route('/findAllOrders').get(Controllers.findAllOrders);
 router.route('/updateOrder/:orderId').put(Controllers.updateOrder);
 router.route('/deleteOrder/:orderId').delete(Controllers.deleteOrder);

@@ -1,97 +1,111 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    /* background-image: url('Capture.PNG');  */
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-  }
-  
-  .login-form {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 255, 0.5); 
-    padding: 40px; 
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  }
-  
-  .form-group {
-    margin-bottom: 20px; 
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 10px; 
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 15px; 
-    font-size: 18px; 
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .button-group {
-    text-align: center;
-    margin-top: 20px;
-  }
-  
-  .button-group button {
-    padding: 15px 30px; 
-    font-size: 18px;
-    border: none;
-    border-radius: 5px;
-    background-color: #9c27b0;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin: 0 10px; 
-  }
-  
-  .button-group button:hover {
-    background-color: #7b1fa2; 
-  }
-  
-  .error-message {
-    color: red;
-    margin-top: 20px;
-    text-align: center;
-    opacity: 1; /* Initially set opacity to 1 */
-    transition: opacity 0.3s ease; /* Add transition for smooth fade */
-  }
-  
-  .error-message.hide {
-    opacity: 0; /* Set opacity to 0 to hide */
-  }
-  
-  .login-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .login-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .role-selection {
-    margin-bottom: 20px;
-  }
-  
-  .radio-group div {
-    display: inline-block;
-    margin-right: 20px;
-  }
-  
-  .radio-group input[type="radio"] {
-    margin-right: 5px;
-  }
-  
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.login-form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 255, 0.5);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.login-form h2 {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.button-group {
+  display: flex; /* Enable flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  margin-top: 20px;
+}
+
+.button-group button {
+  padding: 15px 30px;
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  background-color: #9c27b0;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 0 10px;
+}
+
+.button-group button:hover {
+  background-color: #7b1fa2;
+}
+
+.error-message {
+  color: red;
+  margin-top: 20px;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.error-message.hide {
+  opacity: 0;
+}
+
+.login-button {
+  display: block; /* Change button display to block */
+  margin: 20px auto; /* Center the button horizontally with auto margin */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+} 
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.role-selection {
+    
+  margin-bottom: 20px;
+}
+
+.radio-group div {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.radio-group input[type="radio"]:checked + label {
+  margin-right: 5px;
+  cursor: pointer; /* Make radio buttons interactive */
+  color: crimson;
+}

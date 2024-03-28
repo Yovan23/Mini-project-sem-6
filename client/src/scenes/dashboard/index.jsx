@@ -1,6 +1,7 @@
-import React from "react";
+import React ,{useState,useEffect} from "react";
 import FlexBetween from "components/FlexBetween";
 import Header from "components/Header";
+import axios from 'axios';
 import {
   DownloadOutlined,
   Email,
@@ -24,11 +25,33 @@ import StatBox from "components/StatBox";
 const Dashboard = () => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
-  const { data, isLoading } =  useGetMedicinesQuery();
+  const {  isLoading } =  useGetMedicinesQuery();
+  const [data, setData] = useState([]);
+  const fun = async () => {
+    const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
+    
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/medicineFind', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      setData(response.data);
+      // console.log("hey.......");
+      // console.log(response.data);
+    } catch (error) {
+      throw new Error('hereistheerro'); // Throw an error if the request fails
+    }
+  }
+  
+
+  useEffect(()=>{
+    fun();
+  },[])
 
   const columns = [
     {
-      field: "_id",
+      field: "medicineId",
       headerName: "Medicine ID",
       flex: 1,
     },
@@ -83,7 +106,8 @@ const Dashboard = () => {
         {/* ROW 1 */}
         <StatBox
           title="Total Customers"
-          value={data && data.totalCustomers}
+          // value={data && data.totalCustomers}
+          value={"10"}
           increase="+10%"
           description="Since last month"
           icon={
@@ -94,7 +118,8 @@ const Dashboard = () => {
         />
         <StatBox
           title="Sales Today"
-          value={data && data.todayStats.totalSales}
+          // value={data && data.todayStats.totalSales}
+          value={"10"}
           increase="+21%"
           description="Since last month"
           icon={
@@ -114,7 +139,8 @@ const Dashboard = () => {
         </Box>
         <StatBox
           title="Monthly Sales"
-          value={data && data.thisMonthStats.totalSales}
+          // value={data && data.thisMonthStats.totalSales}
+          value={"10"}
           increase="+5%"
           description="Since last month"
           icon={
@@ -125,7 +151,8 @@ const Dashboard = () => {
         />
         <StatBox
           title="Yearly Sales"
-          value={data && data.yearlySalesTotal}
+          // value={data && data.yearlySalesTotal}
+          value={"10"}
           increase="+43%"
           description="Since last month"
           icon={
@@ -135,7 +162,7 @@ const Dashboard = () => {
           }
         />
 
-        {/* ROW 2 */}
+        {/* //ROW 2 */}
         <Box
           gridColumn="span 8"
           gridRow="span 3"
@@ -168,7 +195,7 @@ const Dashboard = () => {
           <DataGrid
             loading={isLoading || !data}
             getRowId={(row) => row._id}
-            rows={(data && data.transactions) || []}
+            rows={(data) || []}
             columns={columns}
           />
         </Box>

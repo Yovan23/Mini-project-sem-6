@@ -40,20 +40,20 @@ userSchema.methods.comparePassword = async function(password){
     return bcrypt.compare(password, this.password);
 }
 
-userSchema.methods.generateToken = async function () {
-    try {
-        return jwt.sign({
-            UserId: this._id.toString(),
-            username: this.username,
-            role: this.role,
-        },
-        process.env.JWT_SECRET_KEY),{
-            expiresIn: "30d",
+    userSchema.methods.generateToken = async function () {
+        try {
+            return jwt.sign({
+                UserId: this._id.toString(),
+                username: this.username,
+                role: this.role,
+            },
+            process.env.JWT_SECRET_KEY),{
+                expiresIn: "30d",
+            }
+        } catch (error) {
+            console.log(error);
         }
-    } catch (error) {
-        console.log(error);
     }
-}
 
 userSchema.methods.changePassword = async function(currentPassword, newPassword) {
     try {

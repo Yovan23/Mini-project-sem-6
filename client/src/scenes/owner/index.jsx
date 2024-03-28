@@ -43,7 +43,7 @@ const Owner = () => {
     if (isUpdateDialogOpen) {
       fetchDataToUpdate();
     }
-    refetch();
+    fun();
   }, [isUpdateDialogOpen, updateData]);
 
   const fun = async () => {
@@ -108,7 +108,7 @@ const Owner = () => {
       console.log(updateData._id);
       await ownerUpdate({ id: updateData._id, ...updateData });
       console.log("Successfully updated the owner data:", updateData);
-      refetch();
+      fun();
       showSnackbar("Update successful");
       const updatedOwners = data.map(owner => {
         if (owner._id === updateData._id) {
@@ -116,7 +116,7 @@ const Owner = () => {
         }
         return owner;
       });
-      refetch(updatedOwners);
+      fun(updatedOwners);
     } catch (error) {
       console.error("Error updating owner data:", error);
     }
@@ -132,7 +132,7 @@ const Owner = () => {
     try {
       console.log(rowData);
       await axios.delete(`http://localhost:5000/api/auth/ownerDelete/${rowData._id}`);
-      refetch();
+      fun();
       showSnackbar("Delete successful");
     } catch (error) {
       console.error("Error deleting the item:", error);
@@ -180,7 +180,7 @@ const Owner = () => {
       }
       const response = await axios.post('http://localhost:5000/api/auth/ownerAdd', newOwnerData);
       if (response.status === 201) {
-        refetch();
+        fun();
         showSnackbar("Owner added successfully");
         handleCloseAddDialog();
       } else {

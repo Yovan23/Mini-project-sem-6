@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import axios from "axios";
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/api/auth/" }),
@@ -17,7 +16,7 @@ export const api = createApi({
   ],
   endpoints: (build) => ({
     getUser: build.query({
-      query: (id) => `general/user/${id}`,
+      query: (id) => `login/${id}`,
       providesTags: ["User"],
     }),
     
@@ -38,29 +37,29 @@ export const api = createApi({
       }),
       providesTags: ["Admins"],
   }),
-    // getAdmins: build.query({
-    //   query: () => "adminFind",
-    //   providesTags: ["Admins"],
-    // }),
-    getAdmins : build.query({
-      queryKey: 'admins',
-      queryFn: async () => {
-        const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
-    
-        try {
-          const response = await axios.get('http://localhost:5000/api/auth/adminFind', {
-            headers: {
-              Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-            },
-          });
-    console.log(response);
-          return response.data; // Return the data from the response
-        } catch (error) {
-          throw new Error('hereistheerro'); // Throw an error if the request fails
-        }
-      },
-      providesTags: ['Admins'],
+    getAdmins: build.query({
+      query: () => "adminFind",
+      providesTags: ["Admins"],
     }),
+    // getAdmins : build.query({
+    //   queryKey: 'admins',
+    //   queryFn: async () => {
+    //     const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
+    
+    //     try {
+    //       const response = await axios.get('http://localhost:5000/api/auth/adminFind', {
+    //         headers: {
+    //           Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    //         },
+    //       });
+    // console.log();
+    //       return response.data; // Return the data from the response
+    //     } catch (error) {
+    //       throw new Error('hereistheerro'); // Throw an error if the request fails
+    //     }
+    //   },
+    //   providesTags: ['Admins'],
+    // }),
     adminDelete: build.mutation({
       query: (id) => ({
         url: `adminDelete/${id}`,

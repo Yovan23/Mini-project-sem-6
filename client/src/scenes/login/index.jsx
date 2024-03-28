@@ -206,10 +206,8 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (token) => {
-    // Store the token securely (e.g., in local storage)
     localStorage.setItem("token", token);
 
-    // Navigate to the dashboard
     navigate("/dashboard");
   };
 
@@ -217,9 +215,9 @@ const LoginForm = () => {
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", { username, password, role });
       const { msg, token } = response.data;
-
+// console.log(response.data.role);
       if (response.status === 200) {
-        handleLogin(token); // Call handleLogin function with the token
+        handleLogin(token); 
       } else {
         setErrorMessage(msg);
         setTimeout(() => {

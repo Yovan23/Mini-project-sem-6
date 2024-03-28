@@ -16,7 +16,8 @@ const Adminno = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   // eslint-disable-next-line
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const { data, isLoading, refetch } = useGetAdminsQuery();
+  const [data, setData] = useState([]);
+  const {  isLoading } = useGetAdminsQuery();
   const [{ isLoading: isDeleting }] = useAdminDeleteMutation();
   const [adminUpdate] = useAdminUpdateMutation();
   const showSnackbar = (message) => {
@@ -24,6 +25,25 @@ const Adminno = () => {
     setIsSnackbarOpen(true);
   };
 
+  const fun = async () => {
+    const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
+    
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/adminsFind', {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      });
+      setData(response.data);
+    } catch (error) {
+      throw new Error('hereistheerro'); 
+    }
+  }
+  
+
+  useEffect(()=>{
+    fun();
+  },[])
   const columns = [
     {
       field: "adminId",

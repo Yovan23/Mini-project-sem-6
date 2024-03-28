@@ -128,16 +128,15 @@ import Breakdown from "scenes/breakdown";
 import Admin from "scenes/admin";
 import Performance from "scenes/performance";
 import Owner from "scenes/owner";
-import Adminno from "scenes/adminno";
 import Admins from "scenes/adminno";
 import Inventory  from "scenes/inventory";
 import LoginForm from "scenes/login";
+import Order from "scenes/order";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
   const [loggedIn, setLoggedIn] = useState(false);
-
   const handleLogin = async (userData) => {
     console.log("Login attempted with:", userData);
     if (userData.username === "validUser" && userData.password === "validPassword") {
@@ -161,7 +160,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/Bill" element={<Bill />} />
               <Route path="/medicine" element={<Medicine />} />
-              <Route path="/Inventory" element={<Inventory />} />
+              {/* <Route path="/Inventory" element={<Inventory />} /> */}
               <Route path="/Geography" element={<Geography />} />
               <Route path="/Overview" element={<Overview />} />
               <Route path="/Daily" element={<Daily />} />
@@ -171,7 +170,8 @@ function App() {
               <Route path="/Owner" element={<Owner />} />
               <Route path="/Performance" element={<Performance />} />
               <Route path="/Admins" element={<Admins />} />              
-           
+              <Route path="/Order" element={<Order />} />
+              
             </Route>
         
           </Routes>

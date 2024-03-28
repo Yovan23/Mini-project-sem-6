@@ -116,7 +116,7 @@ const login = async (req, res) => {
   try {
     const { username, password, role } = req.body;
     let userExist;
-
+// console.log(role);
     switch (role) {
       case 'superAdmin':
         userExist = await User.findOne({ username });
@@ -134,13 +134,16 @@ const login = async (req, res) => {
     if (!userExist || userExist.role !== role) {
       return res.status(400).json({ msg: "Invalid Credentials" });
     }
-
+   
     const isPasswordValid = await userExist.comparePassword(password);
     if (isPasswordValid) {
-      const token = jwt.sign({ userId: userExist._id }, JWT_SECRET);
+      const token = jwt.sign({ userId: userExist._id,role }, JWT_SECRET);
+      const decodedToken = jwt.verify(token, JWT_SECRET);
+      const decodedRole = decodedToken.role;  
       res.status(200).json({
         msg: "Login Successful",
         token,
+        role,
         userId: userExist._id.toString()
       });
     } else {
@@ -262,10 +265,28 @@ const  adminAdd = async (req,res,next) => {
     }
 };
 
-const adminFind = async (req,res) => {
+const adminsFind = async (req,res) => {
     const findAdmin = await Admin.find();
     res.status(200).json(findAdmin);
 };
+ // Import your User model
+
+const adminFind = async (req, res) => {
+    try {
+        const loggedInUserId = req.user.userId;
+// console.log(loggedInUserId);
+        const user = await Owner.findById(loggedInUserId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const findAdmin = await Admin.find({ owner: user.username });
+        res.status(200).json(findAdmin);
+    } catch (error) {
+        console.error('Error finding admins:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 
 const adminUpdate = async (req, res) => {
     try {
@@ -508,47 +529,51 @@ const addMedicineToBillController = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-
-
   const createOrder = async (req, res) => {
     try {
-        const { adminId,totalAmount } = req.body;
-
-       
-        if (!adminId || !orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
-            return res.status(400).json({ error: 'Invalid input' });
+      const { Username, ownerName, orderItems } = req.body;
+      const loggedInUserId = req.user.userId;
+  
+      // Iterate through orderItems and fetch details from Medicine collection
+      for (const item of orderItems) {
+        const medicine = await Med.findOne({ medicineName: item.medicineName });
+        if (!medicine) {
+          throw new Error(`Medicine not found: ${item.medicineName}`);
         }
-
-     
-        const orderItemsWithSubtotal = orderItems.map(item => {
-            const subTotal = item.unitPrice * item.quantity;
-            return {
-                ...item,
-                subTotal: subTotal
-            };
-        });
-
-   
-        const order = new Order({ adminId, orderItems: orderItemsWithSubtotal });
-
-      
-        const savedOrder = await order.save();
-        
-       const createOrder = await Order.create(req.body);
-
-        res.status(201).json({ message: 'Order created successfully', 
+  
+        item.medicineId = medicine.medicineId;
+        item.unitPrice = medicine.unitPrice;
+        item.category = medicine.category;
+        item.subTotal = item.unitPrice * item.quantity; // Calculate subtotal
+      }
+  
+      // Calculate totalAmount
+      const totalAmount = orderItems.reduce((total, item) => total + item.subTotal, 0);
+  
+      // Create the order including userId
+      const newOrder = new Order({
+        Username,
+        ownerName,
+        orderItems,
+        totalAmount,
+        userId: loggedInUserId, 
       });
+  
+      await newOrder.save();
+  
+      res.status(201).json({ message: 'Order created successfully', data: newOrder });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error creating order:', error);
+      res.status(500).json({ message: 'Error creating order' });
     }
-};
-
+  };
+  
   const findOrder = async (req, res) => {
     try {
-      const { adminId } = req.params;
+      const loggedInUserId = req.user.userId;
+console.log(loggedInUserId);
   
-      const orders = await Order.find({ adminId });
+      const orders = await Order.find({ userId: loggedInUserId });
   
       if (!orders || orders.length === 0) {
         return res.status(404).json({ message: 'No orders found for the specified admin' });
@@ -640,7 +665,7 @@ const addMedicineToBillController = async (req, res) => {
   };
   
 module.exports = { home,register,login,change_Password,medicine , medicineFind,medicineUpdate,medicineDelete,
-     adminAdd , adminFind ,adminUpdate,adminDelete , 
+     adminAdd , adminFind ,adminUpdate,adminDelete ,adminsFind, 
      ownerAdd,ownerFind,ownerUpdate,ownerDelete ,
      billCreate ,billFind, addMedicineToBillController ,billFindOne, 
      createOrder,findOrder,findAllOrders,updateOrder,deleteOrder};

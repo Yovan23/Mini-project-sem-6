@@ -1,206 +1,4 @@
-// import React, { useState,useEffect } from 'react';
-// import { Box, useTheme,Typography } from '@mui/material'; 
-// import { useGetBillsQuery } from 'state/api';
-// import { DataGrid } from '@mui/x-data-grid';
-// import Header from 'components/Header';
-// import CustomColumnMenu from 'components/DataGridCustomColumnMenu';
-// import MenuItem from '@mui/material/MenuItem'; 
-// import Button from '@mui/material/Button';
-// import Popover from '@mui/material/Popover';
 
-// const CustomDropdownMenu = ({ medicines, anchorEl, anchorPosition, open, onClose }) => {
-//   return (
-//     <Popover
-//       open={open}
-//       anchorEl={anchorEl}
-//       anchorPosition={anchorPosition}
-//       onClose={onClose}
-//       anchorOrigin={{
-//         vertical: 'top',
-//         horizontal: 'left',
-//       }}
-//       transformOrigin={{
-//         vertical: 'top',
-//         horizontal: 'left',
-//       }}
-//     >
-//       <div>
-//         {medicines.map((medicine, index) => (
-//           <MenuItem key={index} value={medicine.medicineName}>
-//             {`${medicine.medicineName} (Qty: ${medicine.quantity})`}
-//           </MenuItem>
-//         ))}
-//       </div>
-//     </Popover>
-//   );
-// };
-
-// const Performance = () => {
-//   const { data, isLoading } = useGetBillsQuery();
-//   const [medicinesData, setMedicinesData] = useState([]);
-//   const theme = useTheme();
-//   // const userId = useSelector((state) => state.global.userId);
-  // useEffect(() => {
-  //   if (data) {
-  //     const medicinesMap = new Map();
-  //     data.forEach(bill => {
-  //       bill.medicines.forEach(medicine => {
-  //         const { medicineName, quantity } = medicine;
-  //         if (medicinesMap.has(medicineName)) {
-  //           const existingQuantity = medicinesMap.get(medicineName);
-  //           medicinesMap.set(medicineName, existingQuantity + quantity);
-  //         } else {
-  //           medicinesMap.set(medicineName, quantity);
-  //         }
-  //       });
-  //     });
-  //     const medicinesArray = Array.from(medicinesMap.entries()).map(([medicineName, quantity]) => ({
-  //       medicineName,
-  //       quantity
-  //     }));
-  //     setMedicinesData(medicinesArray);
-  //   }
-  // }, [data]);
-
- 
-//   const [selectedRow, setSelectedRow] = useState(null);
-//   const [anchorEl, setAnchorEl] = useState(null);
-//   const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 }); // State to track position
-
-//   const handleCellClick = (params, event) => {
-//     setSelectedRow(params.row);
-//     setAnchorPosition({
-//       top: event.currentTarget.offsetTop + event.currentTarget.offsetHeight,
-//       left: event.currentTarget.offsetLeft,
-//     });
-//     setAnchorEl(event.currentTarget);
-//   };
-
-//   const handleCloseMenu = () => {
-//     setSelectedRow(null);
-//     setAnchorEl(null);
-//   };
-
-//   const columns = [
-//     {
-//       field: "billId",
-//       headerName: "Bill ID",
-//       flex: .5,
-//     },
-//     {
-//       field: "customerName",
-//       headerName: "customer Name",
-//       flex: .5,
-//     },
-//     {
-//       field: "phoneNo",
-//       headerName: "phone No.",
-//       flex: 1,
-
-//     },
-//     {
-//       field: "totalAmount",
-//       headerName: "Amount",
-//       flex: 0.5,
-//       renderCell: (params) => `Rs.${Number(params.value).toFixed(2)}`,
-//     },
-//     {
-//       field: 'medicines',
-//       headerName: 'Medicines',
-//       flex: 1,
-//       renderCell: (params) => (
-//         <Button onClick={(event) => handleCellClick(params, event)} sx={{ color: 'white' }}>
-//           View Medicines
-//         </Button>
-//       ),
-//     },
-//     {
-//       field: "createdAt",
-//       headerName: "Created At",
-//       flex: 1,
-//       valueGetter: (params) => {
-//         const createdAt = new Date(params.value);
-//         const date = createdAt.toLocaleDateString();
-//         const time = createdAt.toLocaleTimeString();
-//         return `D: ${date} ||T: ${time}`;
-//       },
-//     },
-    
-//   ];
-
-//   return (
-//     <Box m="1.5rem 2.5rem">
-//       <Header
-//         title="PERFORMANCE"
-//         subtitle="Track your Affiliate Sales Performance Here"
-//       />
-//       <Box
-//         mt="40px"
-//         height="75vh"
-//         sx={{
-//           "& .MuiDataGrid-root": {
-//             border: "none",
-//           },
-//           "& .MuiDataGrid-cell": {
-//             borderBottom: "none",
-//           },
-//           "& .MuiDataGrid-columnHeaders": {
-//             backgroundColor: theme.palette.background.alt,
-//             color: theme.palette.secondary[100],
-//             borderBottom: "none",
-//           },
-//           "& .MuiDataGrid-virtualScroller": {
-//             backgroundColor: theme.palette.primary.light,
-//           },
-//           "& .MuiDataGrid-footerContainer": {
-//             backgroundColor: theme.palette.background.alt,
-//             color: theme.palette.secondary[100],
-//             borderTop: "none",
-//           },
-//           "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-//             color: `${theme.palette.secondary[200]} !important`,
-//           },
-//         }}
-//       >
-//         <DataGrid
-//           loading={isLoading || !data}
-//           getRowId={(row) => row._id}
-//           // rows={(data) || []}
-//           rows={(data || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
-//           columns={columns}
-//           components={{
-//             ColumnMenu: CustomColumnMenu,
-//           }}
-//         />
-//         {anchorEl && (
-//           <CustomDropdownMenu
-//             medicines={selectedRow ? selectedRow.medicines : []}
-//             anchorEl={anchorEl}
-//             anchorPosition={anchorPosition} // Pass the position
-//             open={Boolean(anchorEl)}
-//             onClose={handleCloseMenu}
-//           />
-//         )}
-//       </Box>
-//       <Box mt="20px">
-//   <Typography variant="h6">Medicine Quantities</Typography>
-//   <ul>
-//     {medicinesData
-//       .slice() 
-//       .sort((a, b) => b.quantity - a.quantity) 
-//       .map((medicine, index) => (
-//         <li key={index}>
-//           {`${medicine.medicineName}: ${medicine.quantity}`}
-//         </li>
-//       ))}
-//   </ul>
-// </Box>
-
-//     </Box>
-//   );
-// };
-
-// export default Performance;
 import React, { useState,useEffect } from 'react';
 import { Box, useTheme,Typography } from '@mui/material'; 
 import { useGetBillsQuery } from 'state/api';
@@ -350,7 +148,55 @@ const Performance = () => {
         subtitle="Track your Affiliate Sales Performance Here"
       />
           
-          <Box display="flex" justifyContent="space-between">
+      <Box
+        mt="40px"
+        height="75vh"
+        sx={{
+          "& .MuiDataGrid-root": {
+            border: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: theme.palette.background.alt,
+            color: theme.palette.secondary[100],
+            borderBottom: "none",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            backgroundColor: theme.palette.primary.light,
+          },
+          "& .MuiDataGrid-footerContainer": {
+            backgroundColor: theme.palette.background.alt,
+            color: theme.palette.secondary[100],
+            borderTop: "none",
+          },
+          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+            color: `${theme.palette.secondary[200]} !important`,
+          },
+        }}
+      >
+        <DataGrid
+          loading={isLoading || !data}
+          getRowId={(row) => row._id}
+          // rows={(data) || []}
+          rows={(data || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
+          columns={columns}
+          components={{
+            ColumnMenu: CustomColumnMenu,
+          }}
+        />
+        {anchorEl && (
+          <CustomDropdownMenu
+            medicines={selectedRow ? selectedRow.medicines : []}
+            anchorEl={anchorEl}
+            anchorPosition={anchorPosition} 
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+          />
+        )}
+      </Box>
+      <Box display="flex" justifyContent="space-between">
         <Box mt="20px" width="45%">
           <Typography variant="h6">Medicine Quantities</Typography>
           <TableContainer component={Paper} style={{ backgroundColor: theme.palette.background.default, color: 'white' }}>
@@ -404,55 +250,6 @@ const Performance = () => {
           </TableContainer>
         </Box>
       </Box>
-      <Box
-        mt="40px"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: theme.palette.background.alt,
-            color: theme.palette.secondary[100],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: theme.palette.primary.light,
-          },
-          "& .MuiDataGrid-footerContainer": {
-            backgroundColor: theme.palette.background.alt,
-            color: theme.palette.secondary[100],
-            borderTop: "none",
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${theme.palette.secondary[200]} !important`,
-          },
-        }}
-      >
-        <DataGrid
-          loading={isLoading || !data}
-          getRowId={(row) => row._id}
-          // rows={(data) || []}
-          rows={(data || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
-          columns={columns}
-          components={{
-            ColumnMenu: CustomColumnMenu,
-          }}
-        />
-        {anchorEl && (
-          <CustomDropdownMenu
-            medicines={selectedRow ? selectedRow.medicines : []}
-            anchorEl={anchorEl}
-            anchorPosition={anchorPosition} // Pass the position
-            open={Boolean(anchorEl)}
-            onClose={handleCloseMenu}
-          />
-        )}
-      </Box>
-
 
 </Box>
   );

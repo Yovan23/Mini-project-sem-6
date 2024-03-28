@@ -24,12 +24,12 @@ const Medicine = () => {
   // eslint-disable-next-line
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const {  isLoading , refetch} = useGetMedicinesQuery({
+  const {  isLoading , refetch} = useGetMedicinesQuery();
   //   page: page + 1,
   //   pageSize,
   //   sort: JSON.stringify(sort),
   //   search,
-  });
+  //);
   const [medicineUpdate] = useMedicineUpdateMutation();
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
@@ -56,12 +56,14 @@ const Medicine = () => {
     const token = localStorage.getItem('token'); // Retrieve the JWT token from storage
     
     try {
-      const response = await axios.get('http://localhost:5000/api/auth/ownerFind', {
+      const response = await axios.get('http://localhost:5000/api/auth/medicineFind', {
         headers: {
           Authorization: `Bearer ${token}`, // Include the token in the Authorization header
         },
       });
       setData(response.data);
+      // console.log("hey.......");
+      // console.log(response.data);
     } catch (error) {
       throw new Error('hereistheerro'); // Throw an error if the request fails
     }
@@ -71,6 +73,7 @@ const Medicine = () => {
   useEffect(()=>{
     fun();
   },[])
+
   const handleUpdate = async (rowData) => {
     setIsUpdateDialogOpen(true);
     setUpdateData(rowData); 
@@ -116,7 +119,7 @@ const Medicine = () => {
       console.log(updateData._id);
       await medicineUpdate({ id: updateData._id, ...updateData });
       console.log("Successfully updated the admin data:", updateData);
-      refetch();
+      fun();
       showSnackbar("Update successful");
     } catch (error) {
       console.error("Error updating admin data:", error);
@@ -129,10 +132,10 @@ const Medicine = () => {
     if (!confirmed) return;
 
     try {
-      console.log(rowData);
+      // console.log(rowData);
       await axios.delete(`http://localhost:5000/api/auth/medicineDelete/${rowData._id}`);
       console.log("Successfully deleted the item with ID:", rowData._id);
-      refetch();
+      fun();
       showSnackbar("Delete successful");
     } catch (error) {
       console.error("Error deleting the item:", error);
@@ -177,7 +180,7 @@ const Medicine = () => {
       }
       const response = await axios.post('http://localhost:5000/api/auth/medicine', newMedicineData);
       if (response.status === 201) {
-        refetch();
+        fun();
         showSnackbar("Medicine added successfully");
         setIsAddDialogOpen(false);
       } else {
