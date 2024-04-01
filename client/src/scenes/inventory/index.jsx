@@ -1,219 +1,135 @@
 import React, { useEffect, useState } from "react";
-import { Box, useTheme,Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField  } from "@mui/material";
+import { Box, useTheme, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { useGetMedicinesQuery,useMedicineUpdateMutation } from "state/api";
+import { useGetInventoryQuery, useInventoryUpdateMutation } from "state/api";
 import Header from "components/Header";
-import DataGridCustomToolbar from "components/DataGridCustomToolbar";
 import axios from "axios";
 import { Snackbar } from "@mui/material";
-
+import EditIcon from '@mui/icons-material/Edit';
 const Inventory = () => {
   const theme = useTheme();
   const [validationErrors, setValidationErrors] = useState({});
-  const [newMedicineData, setNewMedicineData] = useState({});
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [updateData, setUpdateData] = useState({});
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(20);
-  const [sort, setSort] = useState({});
+  const [data, setData] = useState();
+  const [rows,setRows] = useState([]);
+  const [rowData, setRowData] = useState({});
+  const [inventoryId, setInventoryId] = useState('');
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  // eslint-disable-next-line
-  const [updateSuccess, setUpdateSuccess] = useState(false);
-  const { data, isLoading , refetch} = useGetMedicinesQuery({
-    page: page + 1,
-    pageSize,
-    sort: JSON.stringify(sort),
-    // search,
-  });
-  const [medicineUpdate] = useMedicineUpdateMutation();
-  const showSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setIsSnackbarOpen(true);
-  };
-  useEffect(() => {
-    const fetchDataToUpdate = async () => {
+  const { isLoading, refetch } = useGetInventoryQuery();
+  const [medicineUpdate] = useInventoryUpdateMutation();
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      
       try {
-        if (updateData && updateData._id) {
-          await axios.put(`http://localhost:5000/api/auth/medicineUpdate/${updateData._id}`, updateData);
-          setUpdateSuccess(true);
-          setTimeout(() => setUpdateSuccess(false), 2000);
-        }
+        const response = await axios.get('http://localhost:5000/api/auth/inventoryFind', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setData(response.data);
+        console.log(response.data);
+        setInventoryId(response.data[0]._id);
+        const rows = response.data[0].medicines ? response.data[0].medicines.map((medicine, index) => ({
+          id: index + 1,
+          medicineId: medicine.medicineId || '',
+          medicineName: medicine.medicineName || '',
+          category: medicine.category || '',
+          unitPrice: medicine.unitPrice || 0,
+          stock: medicine.stock || 0,
+          place: medicine.place || '',
+        })) : [];
+        setRows(rows); 
       } catch (error) {
-        console.error("Error fetching data for update:", error);
+        console.error('Error fetching inventory data:', error);
       }
     };
+    const handleRowClick = (rowData) => {
+      setRowData(rowData);
+    };
+    useEffect(() => {
+    fetchData();
+  }, []);
+  
 
-    if (isUpdateDialogOpen) {
-      fetchDataToUpdate();
-    }
-  }, [isUpdateDialogOpen, updateData]);
+  useEffect(() => {
+    refetch();
+  }, []);
 
-  const handleUpdate = async (rowData) => {
+  const handleUpdate = (rowData) => {
     setIsUpdateDialogOpen(true);
-    setUpdateData(rowData); 
+    setRowData(rowData); 
+    setUpdateData(rowData);
   };
-  const handleInputChange = async (e, field) => {
+
+  const handleInputChange = (e, field) => {
     const updatedValue = e.target.value;
     setUpdateData((prevData) => ({
       ...prevData,
       [field]: updatedValue,
     }));
   };
+
   const handleCloseUpdateDialog = () => {
     setIsUpdateDialogOpen(false);
     setUpdateData({});
+    fetchData();
   };
-  const handleFormSubmit = async (updateData) => {
+ 
+  const handleFormSubmit = async () => {
     try {
-      const errors = {};
-
-      if (!updateData.medicineId || updateData.medicineId.length < 6) {
-        errors.medicineId = 'Medicine must be at least 6 characters long.';
-      }
-
-      if (!updateData.medicineName  ) {
-        errors.medicineName = 'Please enter medicine name.';
-      }
-
-      if (!updateData.category ) {
-        errors.category = 'Please enter a category.';
-      }
-
-      if (!updateData.unitPrice) {
-        errors.unitPrice = 'Please enter a unit price.';
-      }else if (!/^\d+(\.\d{1,2})?$/.test(updateData.unitPrice)) {
-        errors.unitPrice = 'Please enter a valid unit price.';
-      }
-
-      if (Object.keys(errors).length > 0) {
-        setValidationErrors(errors);
+      const { medicineId } = rowData || {}; // Get the medicineId from rowData, default to an empty object if rowData is undefined
+      if (!medicineId) {
+        console.error("Error: medicineId is undefined");
         return;
       }
-
-      console.log(updateData._id);
-      await medicineUpdate({ id: updateData._id, ...updateData });
-      console.log("Successfully updated the admin data:", updateData);
-      refetch();
-      showSnackbar("Update successful");
+      const response = await axios.put(`http://localhost:5000/api/auth/inventories/${inventoryId}/medicines/${medicineId}/place`, updateData);
+      console.log("Successfully updated the inventory data:", response.data);
     } catch (error) {
-      console.error("Error updating admin data:", error);
+      console.error("Error updating inventory data:", error);
     }
-    handleCloseUpdateDialog(); 
+    handleCloseUpdateDialog();
   };
-
-  const handleDelete = async (rowData) => {
-    const confirmed = window.confirm("Are you sure you want to delete this Medicine?");
-    if (!confirmed) return;
-
-    try {
-      console.log(rowData);
-      await axios.delete(`http://localhost:5000/api/auth/medicineDelete/${rowData._id}`);
-      console.log("Successfully deleted the item with ID:", rowData._id);
-      refetch();
-      showSnackbar("Delete successful");
-    } catch (error) {
-      console.error("Error deleting the item:", error);
-    }
-  };
-  const handleAddInputChange = (e, field) => {
-    const updatedValue = e.target.value;
-    setNewMedicineData((prevData) => ({
-      ...prevData,
-      [field]: updatedValue,
-    }));
-  };
-  const handleCloseAddDialog = () => {
-    setIsAddDialogOpen(false);
-    setNewMedicineData({});
-  };
-  const handleAddFormSubmit = async () => {
-    try {
-      const errors = {};
-    
-      if (!newMedicineData.medicineId || newMedicineData.medicineId.length < 6) {
-        errors.medicineIda = 'Medicine must be at least 6 characters long.';
-      }
-
-      if (!newMedicineData.medicineName  ) {
-        errors.medicineNamea = 'Please enter medicine name.';
-      }
-
-      if (!newMedicineData.category ) {
-        errors.categorya = 'Please enter a category.';
-      }else if (!/^\d+(\.\d{1,2})?$/.test(newMedicineData.unitPrice)) {
-        errors.unitPricea = 'Please enter a valid unit price.';
-      }
-
-      if (!newMedicineData.unitPrice) {
-        errors.unitPricea = 'Please enter a unit price.';
-      }
   
-      if (Object.keys(errors).length > 0) {
-        setValidationErrors(errors);
-        return;
-      }
-      const response = await axios.post('http://localhost:5000/api/auth/medicine', newMedicineData);
-      if (response.status === 201) {
-        refetch();
-        showSnackbar("Medicine added successfully");
-        setIsAddDialogOpen(false);
-      } else {
-        console.error("Error adding medicine:", response.data);
-        showSnackbar("Error adding medicine. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error adding medicine:", error);
-      showSnackbar("Error adding medicine. Please try again.");
-     } 
-    handleCloseAddDialog();
-  };
+
+  
+
   const columns = [
+    { field: 'medicineId', headerName: 'Medicine ID', width: 150 },
+    { field: 'medicineName', headerName: 'Medicine Name', width: 200 },
+    { field: 'category', headerName: 'Category', width: 200 },
+    { field: 'unitPrice', headerName: 'Unit Price', width: 120 },
+    { field: 'stock', headerName: 'Stock', width: 100 },
+    { field: 'place', headerName: 'Place', width: 100 },
     {
-      field: "medicineId",
-      headerName: " ID",
-      flex: 1,
-    },
-    {
-      field: "medicineName",
-      headerName: "Medicine name",
-      flex: 1,
-    },
-    {
-      field: "category",
-      headerName: "Category",
-      flex: 1,
-    },
-   
-    {
-      field: "unitPrice",
-      headerName: "unit Price",
-      flex: 1,
-      renderCell: (params) => `${Number(params.value).toFixed(2)}`,
-    },
-    {
-      field: "role",
-      headerName: "Role",
-      flex: 1,
-      renderCell: (params) => {
-        return (
-          <Box>
-            <Button variant="contained" color="primary" onClick={() => handleDelete(params.row)}>
-              Delete
-            </Button>
-            <Button variant="contained" color="primary" onClick={() => handleUpdate(params.row)}>
-              Update
-            </Button>
-          </Box>
-        );
-      },
+      field: 'actions',
+      headerName: 'Actions',
+      width: 120,
+      renderCell: (params) => (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => handleUpdate(params.row)}
+        >
+           {<EditIcon style={{ color: 'white' }} />}
+        </Button>
+      ),
     },
   ];
-  
+//   const rows = response.data[0].medicines ? response.data[0].medicines.map((medicine, index) => ({
+//     id: index + 1,
+//     medicineID: medicine.medicineID || '',
+//     medicineName: medicine.medicineName || '',
+//     unitPrice: medicine.unitPrice || 0,
+//     stock: medicine.stock || 0,
+//     place: medicine.place || '',
+// })) : [];
+
+
   return (
     <Box m="1.5rem 2.5rem">
-      <Header title="Inventory" subtitle="Entire list of Medicine" />
+      <Header title="Medicine" subtitle="Entire list of Medicine" />
       <Box
         height="80vh"
         sx={{
@@ -242,86 +158,40 @@ const Inventory = () => {
         }}
       >
         <DataGrid
-          loading={isLoading || !data}
-          getRowId={(row) => row._id}
-          rows={(data) || []}
+          rows={rows}
           columns={columns}
-          rowCount={(data && data.total) || 0}
-          rowsPerPageOptions={[10, 20, 50]}
-          pagination
-          page={page}
-          pageSize={pageSize}
-          paginationMode="server"
-          sortingMode="server"
-          onPageChange={(newPage) => setPage(newPage)}
-          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-          onSortModelChange={(newSortModel) => setSort(...newSortModel)}
-          components={{ Toolbar: DataGridCustomToolbar }}
-        //   componentsProps={{
-        //     toolbar: { searchInput, setSearchInput, setSearch },
-        //   }}
+          pageSize={10}
+          rowsPerPageOptions={[5, 10, 20]}
+          handleRowClick
+          // checkboxSelection
         />
-      {/* </Box> */}
-      
-        
       </Box>
-      
+ 
       <Dialog open={isUpdateDialogOpen} onClose={handleCloseUpdateDialog} sx={{ padding: '20px' }}>
-        <DialogTitle>Update Medicine place</DialogTitle>
+        <DialogTitle>Update Place</DialogTitle>
         <DialogContent>
           <TextField
-            label="Medicine ID"
-            name="medicineId"
-            value={updateData.medicineId || ''}
-            onChange={(e) => handleInputChange(e, 'medicineId')}
-            error={!!validationErrors.medicineId}
-            helperText={validationErrors.medicineId}
+            label="Place"
+            name="Place"
+            value={updateData.place || ''}
+            onChange={(e) => handleInputChange(e, 'place')}
+            error={!!validationErrors.place}
+            helperText={validationErrors.place}
             fullWidth
             margin="normal"
           />
 
-          <TextField
-            label="Medicine Name"
-            name="medicineName"
-            value={updateData.medicineName || ''}
-            onChange={(e) => handleInputChange(e, 'medicineName')}
-            error={!!validationErrors.medicineName}
-            helperText={validationErrors.medicineName}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Category"
-            name="category"
-            value={updateData.category || ''}
-            onChange={(e) => handleInputChange(e, 'category')}
-            error={!!validationErrors.category}
-            helperText={validationErrors.category}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Unit Price"
-            name="unitPrice"
-            value={updateData.unitPrice || ''}
-            onChange={(e) => handleInputChange(e, 'unitPrice')}
-            error={!!validationErrors.unitPrice}
-            helperText={validationErrors.unitPrice}
-            fullWidth
-            margin="normal"
-          />
-          
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseUpdateDialog} color="primary" sx={{ color: '#ED2939' }}>
             Cancel
           </Button>
-          <Button onClick={() => handleFormSubmit(updateData)} color="primary" sx={{ color: '#00FF00' }}>
-            Update
-          </Button>
+   <Button onClick={() => handleFormSubmit(updateData)} color="primary" sx={{ color: '#00FF00' }}>
+  Update
+</Button>
         </DialogActions>
       </Dialog>
-       <Snackbar
+      <Snackbar
         open={isSnackbarOpen}
         message={snackbarMessage}
         autoHideDuration={2000}

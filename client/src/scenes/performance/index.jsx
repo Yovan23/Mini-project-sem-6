@@ -2,6 +2,7 @@
 import React, { useState,useEffect } from 'react';
 import { Box, useTheme,Typography } from '@mui/material'; 
 import { useGetBillsQuery } from 'state/api';
+import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
 import CustomColumnMenu from 'components/DataGridCustomColumnMenu';
@@ -37,11 +38,28 @@ const CustomDropdownMenu = ({ medicines, anchorEl, anchorPosition, open, onClose
 };
 
 const Performance = () => {
-  const { data, isLoading } = useGetBillsQuery();
+  const {  isLoading } = useGetBillsQuery();
   const [medicinesData, setMedicinesData] = useState([]);
   const [categoriesData, setCategoriesData] = useState([]);
   const theme = useTheme();
+  const [data, setData] = useState([]);
   // const userId = useSelector((state) => state.global.userId);
+  
+  const fun = async () => {
+    const token = localStorage.getItem('token'); 
+    
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/billFind', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      setData(response.data);
+    } catch (error) {
+      throw new Error('hereistheerro'); // Throw an error if the request fails
+    }
+  }
+  
   useEffect(() => {
     if (data) {
       const medicinesMap = new Map();
@@ -75,7 +93,9 @@ const Performance = () => {
       setCategoriesData(categoriesArray);
     }
   }, [data]);  
- 
+  useEffect(()=>{
+    fun();
+  },[]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 }); // State to track position

@@ -4,6 +4,7 @@ const Admin = require("../Model/admin_Model");
 const Bill = require("../Model/bill_Model");
 const Order = require("../Model/order_Model");
 const Owner = require("../Model/owner_Model");
+const Inventory = require("../Model/inventory_Model");
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
@@ -116,7 +117,6 @@ const login = async (req, res) => {
   try {
     const { username, password, role } = req.body;
     let userExist;
-// console.log(role);
     switch (role) {
       case 'superAdmin':
         userExist = await User.findOne({ username });
@@ -138,8 +138,7 @@ const login = async (req, res) => {
     const isPasswordValid = await userExist.comparePassword(password);
     if (isPasswordValid) {
       const token = jwt.sign({ userId: userExist._id,role }, JWT_SECRET);
-      const decodedToken = jwt.verify(token, JWT_SECRET);
-      const decodedRole = decodedToken.role;  
+       
       res.status(200).json({
         msg: "Login Successful",
         token,
@@ -256,12 +255,29 @@ const  adminAdd = async (req,res,next) => {
     try {
       const { adminId,username,cityName,location,phoneNo,email,password,owner,role } = req.body;
       const adminadd = await Admin.create(req.body);
-    const inventory = await createInitialInventory(adminadd._id);
-    console.log(adminadd._id);
+      const inventoryData = {
+        adminId: adminId,
+        medicines: [] 
+      };
+      const allMedicines = await Med.find();
+
+      allMedicines.forEach(medicine => {
+        inventoryData.medicines.push({
+          medicineId: medicine._id,
+          medicineID: medicine.medicineId,
+          medicineName: medicine.medicineName,
+          category: medicine.category,
+          unitPrice: medicine.unitPrice,
+          stock: 20, 
+          place: "No" 
+        });
+      });
+      const inventory = await Inventory.create(inventoryData);
     await updateOwnersWithAdminsCount();
           res.status(201).json({message: 'Add Admin Successful'});
     } catch (error) {
-        console.log(error);
+      console.log(error);
+      res.status(500).json({ message: 'Error adding admin or creating inventory' });
     }
 };
 
@@ -269,12 +285,10 @@ const adminsFind = async (req,res) => {
     const findAdmin = await Admin.find();
     res.status(200).json(findAdmin);
 };
- // Import your User model
 
 const adminFind = async (req, res) => {
     try {
         const loggedInUserId = req.user.userId;
-// console.log(loggedInUserId);
         const user = await Owner.findById(loggedInUserId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -389,53 +403,151 @@ const ownerDelete = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
+// const billCreate = async (req, res) => {
+//   try {
+//     const { customerName, phoneNo, medicines } = req.body;
+//     const loggedInUserId = req.user.userId;
 
+//     // Validate medicines and calculate total amount
+//     const promises = medicines.map(async (medicine) => {
+//       const fetchedMedicine = await Med.findOne({ medicineName: medicine.medicineName });
+//       if (!fetchedMedicine) {
+//         throw new Error("Medicine not found: " + medicine.medicineName);
+//       }
+//       const fetchedAdmin = await Admin.findOne({ _id: loggedInUserId });
+//       if (!fetchedAdmin) {
+//         throw new Error("Admin not found: " + medicine.medicineName);
+//       }
+//       const inventory = await Inventory.findOne({ adminId: fetchedAdmin.adminId, 'medicines.medicineId': fetchedMedicine._id });
+//       if (!inventory) {
+//         throw new Error("Inventory not found for admin: " + fetchedAdmin.adminId);
+//       }
+
+//       // Find the medicine in the inventory and deduct stock
+//       const inventoryMedicine = inventory.medicines.find(m => m.medicineId.toString() === fetchedMedicine._id.toString());
+//       if (!inventoryMedicine) {
+//         throw new Error("Medicine not found in inventory: " + fetchedMedicine.medicineName);
+//       }
+//       if (inventoryMedicine.stock < medicine.quantity) {
+//         throw new Error("Insufficient stock for medicine: " + medicine.medicineName);
+//       }
+//       inventoryMedicine.stock -= medicine.quantity;
+//       await inventory.save();
+
+//       // Calculate subtotal for the medicine
+//       const subTotal = fetchedMedicine.unitPrice * medicine.quantity;
+
+//       return {
+//         ...medicine,
+//         medicineId: fetchedMedicine._id,
+//         unitPrice: fetchedMedicine.unitPrice,
+//         category: fetchedMedicine.category,
+//         subTotal,
+//       };
+//     });
+
+//     const processedMedicines = await Promise.all(promises);
+//     const totalAmount = processedMedicines.reduce((total, medicine) => total + medicine.subTotal, 0);
+
+//     // Create and save the bill
+//     const newBill = new Bill({
+//       customerName,
+//       phoneNo,
+//       medicines: processedMedicines,
+//       totalAmount,
+//       adminId: loggedInUserId,
+//     });
+//     await newBill.save();
+
+//     res.status(201).json({ message: "Bill created successfully", data: newBill });
+//   } catch (error) {
+//     console.error("Error creating bill:", error);
+//     res.status(500).json({ message: "Error creating bill" });
+//   }
+// };
 const billCreate = async (req, res) => {
   try {
     const { customerName, phoneNo, medicines } = req.body;
+    const loggedInUserId = req.user.userId;
 
-    for (const medicine of medicines) {
-      const fetchedMedicine = await Med.findOne({ medicineName: medicine.medicineName });
-      if (!fetchedMedicine) {
-        throw new Error("Medicine not found: " + medicine.medicineName);
-      }
-
-      medicine.medicineId = fetchedMedicine.medicineId;
-      medicine.unitPrice = fetchedMedicine.unitPrice;
-      medicine.category = fetchedMedicine.category;
-
-
-      if (isNaN(medicine.quantity) || medicine.quantity <= 0) {
-        throw new Error("Invalid quantity for medicine: " + medicine.medicineName);
-      }
-
-      medicine.subTotal = fetchedMedicine.unitPrice * medicine.quantity;
-      if (isNaN(medicine.subTotal) || medicine.subTotal <= 0) {
-        throw new Error("Invalid subtotal for medicine: " + medicine.medicineName);
-      }
+    const fetchedAdmin = await Admin.findOne({ _id: loggedInUserId });
+    if (!fetchedAdmin) {
+      throw new Error("Admin not found with ID: " + loggedInUserId);
     }
 
-    const totalAmount = medicines.reduce((total, medicine) => total + medicine.subTotal, 0);
+    const promises = medicines.map(async (medicine) => {
+      const fetchedMedicine = await Med.findOne({ medicineName: medicine.medicineName });
+      if (!fetchedMedicine) {
+        return { error: "Medicine not found: " + medicine.medicineName };
+      }
+
+      const inventory = await Inventory.findOne({ adminId: fetchedAdmin.adminId, 'medicines.medicineId': fetchedMedicine._id });
+      if (!inventory) {
+        return { error: `Inventory not found for admin: ${fetchedAdmin.adminId}` };
+      }
+
+      const inventoryMedicine = inventory.medicines.find(m => m.medicineId.toString() === fetchedMedicine._id.toString());
+      if (!inventoryMedicine) {
+        return { error: "Medicine not found in inventory: " + fetchedMedicine.medicineName };
+      }
+      if (inventoryMedicine.stock < medicine.quantity) {
+        return { error: "Insufficient stock for medicine: " + medicine.medicineName };
+      }
+
+      inventoryMedicine.stock -= medicine.quantity;
+      await inventory.save();
+
+      const subTotal = fetchedMedicine.unitPrice * medicine.quantity;
+
+      return {
+        ...medicine,
+        medicineId: fetchedMedicine._id,
+        unitPrice: fetchedMedicine.unitPrice,
+        category: fetchedMedicine.category,
+        subTotal,
+      };
+    });
+
+    const processedMedicines = await Promise.all(promises);
+    const totalAmount = processedMedicines.reduce((total, medicine) => total + (medicine.subTotal || 0), 0);
 
     const newBill = new Bill({
       customerName,
       phoneNo,
-      medicines,
+      medicines: processedMedicines.filter(m => !m.error), // Filter out medicines with errors
       totalAmount,
+      adminId: loggedInUserId,
     });
-
     await newBill.save();
 
-    res.status(201).json({ message: "Bill created successfully", data: newBill });
+    const response = {
+      message: "Bill created successfully",
+      data: newBill,
+      errors: processedMedicines.filter(m => m.error), // Get array of error messages
+    };
+
+    res.status(201).json(response);
   } catch (error) {
     console.error("Error creating bill:", error);
     res.status(500).json({ message: "Error creating bill" });
   }
 };
 
-const billFind = async (req,res) => {
-const FindBill = await Bill.find();
-res.status(200).json(FindBill);
+// const billFind = async (req,res) => {
+// const FindBill = await Bill.find();
+// res.status(200).json(FindBill);
+// };
+
+const billFind = async (req, res) => {
+  try {
+      const loggedInUserId = req.user.userId;
+console.log(loggedInUserId);    
+      const findBill = await Bill.find({ adminId: loggedInUserId });
+      res.status(200).json(findBill);
+  } catch (error) {
+      console.error('Error finding admins:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 const billFindOne = async (req, res) => {
@@ -533,7 +645,7 @@ const addMedicineToBillController = async (req, res) => {
     try {
       const { Username, ownerName, orderItems } = req.body;
       const loggedInUserId = req.user.userId;
-  
+  // console.log(loggedInUserId);
       // Iterate through orderItems and fetch details from Medicine collection
       for (const item of orderItems) {
         const medicine = await Med.findOne({ medicineName: item.medicineName });
@@ -663,9 +775,125 @@ console.log(loggedInUserId);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-  
+  const inventoryFind = async (req, res) => {
+    try {
+        const loggedInUserId = req.user.userId;
+        const user = await Admin.findById(loggedInUserId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const findInventory = await Inventory.find({ adminId: user.adminId });
+        res.status(200).json(findInventory);
+    } catch (error) {
+        console.error('Error finding admins:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+
+//   const inventoryUpdate = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+
+//         console.log(id);
+
+//         // Check if the ID is a valid ObjectId
+//         if (!mongoose.Types.ObjectId.isValid(id)) {
+//             return res.status(400).json({ error: 'Invalid ObjectId format' });
+//         }
+
+//         // Find and update the inventory item
+//         const updatedInventory = await Inventory.findByIdAndUpdate(id, req.body, { new: true });
+        
+//         // Check if the inventory item was found and updated
+//         if (!updatedInventory) {
+//             return res.status(404).json({ error: 'Inventory not found' });
+//         }
+
+//         // Send the updated inventory item in the response
+//         res.status(200).json(updatedInventory);
+//     } catch (error) {
+//         console.error('Error in inventoryUpdate:', error);
+//         res.status(500).json({ error: 'Internal Server Error', details: error.message });
+//     }
+// };
+// const inventoryUpdate = async (req, res) => {
+//   try {
+//       const { medicineID } = req.params; // Retrieve medicineID from req.params
+
+//       console.log(medicineID); // Log the retrieved medicineID
+
+//       // Check if the medicineID is provided
+//       if (!medicineID) {
+//           return res.status(400).json({ error: 'Medicine ID is required' });
+//       }
+
+//       // Find the inventory document by its ID
+//       const inventory = await Inventory.findById(req.params._id);
+//       console.log(req.params._id);
+
+//       // Check if the inventory document exists
+//       if (!inventory) {
+//           return res.status(404).json({ error: 'Inventory not found' });
+//       }
+
+//       // Find the index of the medicine with the given medicineID in the medicines array
+//       const medicineIndex = inventory.medicines.findIndex(medicine => medicine.medicineID === medicineID);
+
+//       // Check if the medicineID exists in the inventory
+//       if (medicineIndex === -1) {
+//           return res.status(404).json({ error: 'Medicine not found in inventory' });
+//       }
+
+//       // Update the place of the medicine
+//       inventory.medicines[medicineIndex].place = req.body.place;
+
+//       // Save the updated inventory
+//       await inventory.save();
+
+//       // Send the updated inventory item in the response
+//       res.status(200).json(inventory.medicines[medicineIndex]);
+//   } catch (error) {
+//     console.error('Error in inventoryUpdate:', error);
+//     res.status(500).json({ error: 'Internal Server Error', details: error.message });
+//   }
+// };
+const inventoryUpdate = async (req, res) => {
+
+  const inventoryId = req.params.inventoryId;
+  const medicineId = req.params.medicineId;
+  const newPlace = req.body.place;
+
+  try {
+      // Find the inventory by ID
+      const inventory = await Inventory.findById(inventoryId);
+
+      if (!inventory) {
+          return res.status(404).send(`Inventory with ID ${inventoryId} not found`);
+      }
+
+      // Find the index of the medicine in the array
+      const medicineIndex = inventory.medicines.findIndex(medicine => medicine.medicineId === medicineId);
+
+      if (medicineIndex === -1) {
+          return res.status(404).send(`Medicine with ID ${medicineId} not found in inventory`);
+      }
+
+      // Update the 'place' field for the medicine
+      inventory.medicines[medicineIndex].place = newPlace;
+
+      // Save the updated inventory
+      await inventory.save();
+
+      res.send(`Updated 'place' for medicine with ID ${medicineId} in inventory with ID ${inventoryId}`);
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+  }
+};
 module.exports = { home,register,login,change_Password,medicine , medicineFind,medicineUpdate,medicineDelete,
      adminAdd , adminFind ,adminUpdate,adminDelete ,adminsFind, 
      ownerAdd,ownerFind,ownerUpdate,ownerDelete ,
      billCreate ,billFind, addMedicineToBillController ,billFindOne, 
-     createOrder,findOrder,findAllOrders,updateOrder,deleteOrder};
+     createOrder,findOrder,findAllOrders,updateOrder,deleteOrder,
+     inventoryFind,inventoryUpdate,};

@@ -31,8 +31,8 @@ router.route('/ownerFind').get(Controllers.ownerFind);
 router.route('/ownerUpdate/:id').put(Controllers.ownerUpdate);
 router.route('/ownerDelete/:id').delete(Controllers.ownerDelete);
 
-router.route('/billCreate').post(Controllers.billCreate);
-router.route('/billFind').get(Controllers.billFind);
+router.route('/billCreate').post((authenticateUser),Controllers.billCreate);
+router.route('/billFind').get((authenticateUser),Controllers.billFind);
 router.route('/billFindOne/:billId').get(Controllers.billFindOne);
 router.route('/billUpdate/:id').put(Controllers.addMedicineToBillController);
 
@@ -42,10 +42,15 @@ router.route('/findAllOrders').get(Controllers.findAllOrders);
 router.route('/updateOrder/:orderId').put(Controllers.updateOrder);
 router.route('/deleteOrder/:orderId').delete(Controllers.deleteOrder);
 
+router.route('/inventoryFind').get((authenticateUser),Controllers.inventoryFind);
+// router.route('/inventoryUpdate/:medicineID').put(Controllers.inventoryUpdate);
+router.route('/inventories/:inventoryId/medicines/:medicineId/place').put(Controllers.inventoryUpdate);
+
+
 // const authMiddleware = require('../middlleware/authMiddleware');
-router.route('/createInventory').post(inventoryControllers.createInventory);
-router.route('/updateInventory').put(inventoryControllers.updateInventory);
-router.route('/getUserInventory').get( inventoryControllers.getUserInventory);
+// router.route('/createInventory').post(inventoryControllers.createInventory);
+// router.route('/updateInventory').put(inventoryControllers.addMedicineToInventory);
+// router.route('/getUserInventory').get( inventoryControllers.getUserInventory);
 
 // const logiController = require('../controllers/login');
 

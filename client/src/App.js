@@ -109,12 +109,84 @@
 // export default App;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// import { CssBaseline, ThemeProvider } from "@mui/material";
+// import { createTheme } from "@mui/material/styles";
+// import { useMemo, useState } from "react";
+// import { useSelector } from "react-redux";
+// import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+// import { themeSettings } from "theme";
+// import Layout from "scenes/layout";
+// import Dashboard from "scenes/dashboard";
+// import Bill from "scenes/customers";
+// import Medicine from "scenes/Medicine";
+// import Geography from "scenes/geography";
+// import Overview from "scenes/overview";
+// import Daily from "scenes/daily";
+// import Monthly from "scenes/monthly";
+// import Breakdown from "scenes/breakdown";
+// import Admin from "scenes/admin";
+// import Performance from "scenes/performance";
+// import Owner from "scenes/owner";
+// import Admins from "scenes/adminno";
+// import Inventory  from "scenes/inventory";
+// import LoginForm from "scenes/login";
+// import Order from "scenes/order";
+// import { RoleProvider } from '../src/assets/RoleContext';
+
+// function App() {
+//   const mode = useSelector((state) => state.global.mode);
+//   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+//   const [loggedIn, setLoggedIn] = useState(false);
+//   const handleLogin = async (userData) => {
+//     console.log("Login attempted with:", userData);
+//     if (userData.username === "validUser" && userData.password === "validPassword") {
+//       setLoggedIn(true);
+//     } else {
+//       console.error("Login failed: Invalid credentials");
+//     }
+//   };
+
+//   return (
+//     <div className="app">
+//       <BrowserRouter>
+//         <ThemeProvider theme={theme}>
+//           <CssBaseline />
+//           <Routes>
+//           <Route path="/" element={<Navigate to="/login" replace />} />
+//           <Route path="/login" element={<LoginForm handleLogin={handleLogin} />} />
+//             <Route element={<Layout />}>
+              
+             
+//               <Route path="/dashboard" element={<Dashboard />} />
+//               <Route path="/Bill" element={<Bill />} />
+//               <Route path="/medicine" element={<Medicine />} />
+//               {/* <Route path="/Inventory" element={<Inventory />} /> */}
+//               <Route path="/Geography" element={<Geography />} />
+//               <Route path="/Overview" element={<Overview />} />
+//               <Route path="/Daily" element={<Daily />} />
+//               <Route path="/Monthly" element={<Monthly />} />
+//               <Route path="/Breakdown" element={<Breakdown />} />
+//               <Route path="/Admin" element={<Admin />} />
+//               <Route path="/Owner" element={<Owner />} />
+//               <Route path="/Performance" element={<Performance />} />
+//               <Route path="/Admins" element={<Admins />} />              
+//               <Route path="/Order" element={<Order />} />
+              
+//             </Route>
+        
+//           </Routes>
+//         </ThemeProvider>
+//       </BrowserRouter>
+//     </div>
+//   );
+// }
+
+// export default App;
+import React, { useMemo, useState } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import axios from "axios";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { themeSettings } from "theme";
 import Layout from "scenes/layout";
 import Dashboard from "scenes/dashboard";
@@ -132,6 +204,9 @@ import Admins from "scenes/adminno";
 import Inventory  from "scenes/inventory";
 import LoginForm from "scenes/login";
 import Order from "scenes/order";
+import Sidebar from "./components/Sidebar"; // Import the Sidebar component
+import { RoleProvider } from '../src/assets/RoleContext';
+
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -147,34 +222,35 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <div 
+    className="app"
+    >
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<LoginForm handleLogin={handleLogin} />} />
-            <Route element={<Layout />}>
-              
-             
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/Bill" element={<Bill />} />
-              <Route path="/medicine" element={<Medicine />} />
-              {/* <Route path="/Inventory" element={<Inventory />} /> */}
-              <Route path="/Geography" element={<Geography />} />
-              <Route path="/Overview" element={<Overview />} />
-              <Route path="/Daily" element={<Daily />} />
-              <Route path="/Monthly" element={<Monthly />} />
-              <Route path="/Breakdown" element={<Breakdown />} />
-              <Route path="/Admin" element={<Admin />} />
-              <Route path="/Owner" element={<Owner />} />
-              <Route path="/Performance" element={<Performance />} />
-              <Route path="/Admins" element={<Admins />} />              
-              <Route path="/Order" element={<Order />} />
-              
-            </Route>
-        
-          </Routes>
+          <RoleProvider> {/* Wrap your entire application with RoleProvider */}
+            <Routes>
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<LoginForm handleLogin={handleLogin} />} />
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/Bill" element={<Bill />} />
+                <Route path="/medicine" element={<Medicine />} />
+                <Route path="/Inventory" element={<Inventory />} />
+                <Route path="/Geography" element={<Geography />} />
+                <Route path="/Overview" element={<Overview />} />
+                <Route path="/Daily" element={<Daily />} />
+                <Route path="/Monthly" element={<Monthly />} />
+                <Route path="/Breakdown" element={<Breakdown />} />
+                <Route path="/Admin" element={<Admin />} />
+                <Route path="/Owner" element={<Owner />} />
+                <Route path="/Performance" element={<Performance />} />
+                <Route path="/Admins" element={<Admins />} />              
+                <Route path="/Order" element={<Order />} />
+              </Route>
+            </Routes>
+            <Sidebar /> {/* Include the Sidebar component */}
+          </RoleProvider>
         </ThemeProvider>
       </BrowserRouter>
     </div>

@@ -7,6 +7,7 @@ export const api = createApi({
     "User",
     "Customers",
     "Medicines",
+    "Inventorys",
     "Bills",
     "Geography",
     "Sales",
@@ -95,6 +96,10 @@ getBills: build.query({
   query: () => "billFind",
   providesTags: ["Bills"],
 }),
+getInventory: build.query({
+  query: () => "inventoryFind",
+  providesTags: ["Inventorys"],
+}),
     getMedicines: build.query({
       query: () => "medicineFind",
       providesTags: ["Medicines"],
@@ -112,6 +117,12 @@ getBills: build.query({
         method: 'PUT',
     }),
   }),
+  inventoryUpdate: build.mutation({
+    query: (id) =>({
+      url: `inventoryUpdate/${id}`,
+      method: 'PUT',
+  }),
+}),
     getDashboard: build.query({
       query: () => "general/dashboard",
       providesTags: ["Dashboard"],
@@ -135,6 +146,8 @@ export const {
   useOwnerUpdateMutation,
   useMedicineDeleteMutation,
   useMedicineUpdateMutation,
+  useInventoryUpdateMutation,
+  useGetInventoryQuery,
   useGetUserPerformanceQuery,
   useGetDashboardQuery,
   useGetMedicinesQuery,

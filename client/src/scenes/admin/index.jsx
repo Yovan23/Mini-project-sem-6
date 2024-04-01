@@ -203,7 +203,9 @@ const Admin = () => {
         fun();
         showSnackbar("Admin added successfully");
         handleCloseAddDialog();
-      } else {
+      } else if (response.status === 500) {
+        showSnackbar("Not creating inventory");
+      }else {
         console.error("Error adding admin:", response.data);
         showSnackbar("Error adding admin. Please try again.");
       }

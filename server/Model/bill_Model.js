@@ -32,9 +32,9 @@ const billSchema = new mongoose.Schema({
       type: Number, 
       default: 0 
     },
-    admin: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Admin'
+    adminId: {
+      type: String,
+      // ref: 'Admin'
   }
   },{timestamps:true});
 

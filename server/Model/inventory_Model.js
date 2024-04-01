@@ -3,14 +3,8 @@ const Schema = mongoose.Schema;
 
 const inventorySchema = new mongoose.Schema({
   // user: { type: Schema.Types.ObjectId, ref: 'User' },
-  inventoryId: {
-    type: String,
-    required: true,
-    // unique: true,    
-  },
- 
   adminId: {
-    type: Schema.Types.ObjectId, 
+    type: String, 
     ref: 'Admin', 
     required: true,
   },
@@ -19,6 +13,10 @@ const inventorySchema = new mongoose.Schema({
       type: String, 
       ref: 'Medicine',  
       required: true,
+    },
+    medicineID: {
+      type: String,
+      // required: true,
     },
     medicineName: {
       type: String,
@@ -32,7 +30,7 @@ const inventorySchema = new mongoose.Schema({
       type: Number,
       // required: true,
     },
-    quantity: {
+    stock: {
       type: Number,
       required: true,
       default: 0,

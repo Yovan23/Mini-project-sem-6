@@ -201,12 +201,14 @@ import "./Loginform.css";
 const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("admin");
+  const [role,setRole ] = useState("admin")
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (token) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    localStorage.setItem("username", username);
 
     navigate("/dashboard");
   };
@@ -216,6 +218,7 @@ const LoginForm = () => {
       const response = await axios.post("http://localhost:5000/api/auth/login", { username, password, role });
       const { msg, token } = response.data;
 // console.log(response.data.role);
+
       if (response.status === 200) {
         handleLogin(token); 
       } else {
@@ -226,7 +229,7 @@ const LoginForm = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      setErrorMessage("Login Failed. Please try again.");
+      setErrorMessage("Enter valid username and password.");
     }
   };
 

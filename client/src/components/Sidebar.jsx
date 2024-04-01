@@ -684,10 +684,8 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
-
 var f = false;
-
-const superAdmin = [
+const admin = [
   {
     text: "Dashboard",
     icon: <HomeOutlined />,
@@ -701,34 +699,131 @@ const superAdmin = [
     icon: <ReceiptLongOutlined />,
   },
   {
-    text: "Medicine",
+    text: "Inventory",
     icon: <Groups2Outlined />,
-  
   },
   {
     text: "Order",
     icon: <ReceiptLongOutlined /> ,
   },
   
+  // {
+  //   text: "Sales",
+  //   icon: null,
+  // },
+  // {
+  //   text: "Overview",
+  //   icon: <PointOfSaleOutlined />,
+  // },
+  // {
+  //   text: "Daily",
+  //   icon: <TodayOutlined />,
+  // },
+  // {
+  //   text: "Monthly",
+  //   icon: <CalendarMonthOutlined />,
+  // },
+  // {
+  //   text: "Breakdown",
+  //   icon: <PieChartOutlined />,
+  // },
   {
-    text: "Sales",
+    text: "Management",
     icon: null,
   },
+  // {
+  //   text: "Admin",
+  //   icon: <AdminPanelSettingsOutlined />,
+  // } ,
   {
-    text: "Overview",
-    icon: <PointOfSaleOutlined />,
+    text: "Admins",
+    icon: <AdminPanelSettingsOutlined />,
+  } ,
+  // {
+  //   text: "Owner",
+  //   icon: <PieChartOutlined />,
+  // },
+  // {
+  //   text: "Performance",
+  //   icon: <TrendingUpOutlined />,
+  // },
+];
+const superAdmin = [
+  {
+    text: "Dashboard",
+    icon: <HomeOutlined />,
   },
   {
-    text: "Daily",
-    icon: <TodayOutlined />,
+    text: "Client Facing",
+    icon: null,
   },
+  // {
+  //   text: "Bill",
+  //   icon: <ReceiptLongOutlined />,
+  // },
   {
-    text: "Monthly",
-    icon: <CalendarMonthOutlined />,
+    text: "Medicine",
+    icon: <Groups2Outlined />,
   },
+  // {
+  //   text: "Order",
+  //   icon: <ReceiptLongOutlined /> ,
+  // },
+  
+  // {
+  //   text: "Sales",
+  //   icon: null,
+  // },
+  // {
+  //   text: "Overview",
+  //   icon: <PointOfSaleOutlined />,
+  // },
+  // {
+  //   text: "Daily",
+  //   icon: <TodayOutlined />,
+  // },
+  // {
+  //   text: "Monthly",
+  //   icon: <CalendarMonthOutlined />,
+  // },
+  // {
+  //   text: "Breakdown",
+  //   icon: <PieChartOutlined />,
+  // },
   {
-    text: "Breakdown",
+    text: "Management",
+    icon: null,
+  },
+  // {
+  //   text: "Admin",
+  //   icon: <AdminPanelSettingsOutlined />,
+  // } ,
+  {
+    text: "Admins",
+    icon: <AdminPanelSettingsOutlined />,
+  } ,
+  {
+    text: "Owner",
     icon: <PieChartOutlined />,
+  },
+  // {
+  //   text: "Performance",
+  //   icon: <TrendingUpOutlined />,
+  // },
+];
+
+const owner = [
+  // {
+  //   text: "Owner",
+  //   icon: <PieChartOutlined />,
+  // },
+  // {
+  //   text: "Performance",
+  //   icon: <TrendingUpOutlined />,
+  // },
+  {
+    text: "Dashboard",
+    icon: <HomeOutlined />,
   },
   {
     text: "Management",
@@ -742,25 +837,6 @@ const superAdmin = [
     text: "Admins",
     icon: <AdminPanelSettingsOutlined />,
   } ,
-  {
-    text: "Owner",
-    icon: <PieChartOutlined />,
-  },
-  {
-    text: "Performance",
-    icon: <TrendingUpOutlined />,
-  },
-];
-
-const owner = [
-  {
-    text: "Owner",
-    icon: <PieChartOutlined />,
-  },
-  {
-    text: "Performance",
-    icon: <TrendingUpOutlined />,
-  },
 ]
 
 const Sidebar = ({
@@ -774,12 +850,17 @@ const Sidebar = ({
   const [active, setActive] = useState("");
   const navigate = useNavigate();
   const theme = useTheme();
-
   useEffect(() => {
     setActive(pathname.substring(1));
   }, [pathname]);
+  const my = localStorage.getItem("role");
+  // console.log(my);
+  // const decodedToken = jwt.decode();
 
+// Access the decoded token
+// console.log(decodedToken);
   return (
+    
     <Box component="nav">
       {isSidebarOpen && (
         <Drawer
@@ -814,7 +895,7 @@ const Sidebar = ({
               </FlexBetween>
             </Box>
             <List>
-              {f === true && owner.map(({ text, icon }) => {
+              {my === "owner" && owner.map(({ text, icon }) => {
                 if (!icon) {
                   return (
                     <Typography key={text} sx={{ m: "2.25rem 0 1rem 3rem" }}>
@@ -861,7 +942,54 @@ const Sidebar = ({
                   </ListItem>
                 );
               })}
-              {f === false && superAdmin.map(({ text, icon }) => {
+              {my === "superAdmin" && superAdmin.map(({ text, icon }) => {
+                if (!icon) {
+                  return (
+                    <Typography key={text} sx={{ m: "2.25rem 0 1rem 3rem" }}>
+                      {text}
+                    </Typography>
+                  );
+                }
+                const lcText = text.toLowerCase();
+
+                return (
+                  <ListItem key={text} disablePadding>
+                    <ListItemButton
+                      onClick={() => {
+                        navigate(`/${lcText}`);
+                        setActive(lcText);
+                      }}
+                      sx={{
+                        backgroundColor:
+                          active === lcText
+                            ? theme.palette.secondary[300]
+                            : "transparent",
+                        color:
+                          active === lcText
+                            ? theme.palette.primary[600]
+                            : theme.palette.secondary[100],
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          ml: "2rem",
+                          color:
+                            active === lcText
+                              ? theme.palette.primary[600]
+                              : theme.palette.secondary[200],
+                        }}
+                      >
+                        {icon}
+                      </ListItemIcon>
+                      <ListItemText primary={text} />
+                      {active === lcText && (
+                        <ChevronRightOutlined sx={{ ml: "auto" }} />
+                      )}
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+              {my === "admin" && admin.map(({ text, icon }) => {
                 if (!icon) {
                   return (
                     <Typography key={text} sx={{ m: "2.25rem 0 1rem 3rem" }}>
