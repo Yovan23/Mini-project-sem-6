@@ -743,10 +743,14 @@ const admin = [
   //   text: "Owner",
   //   icon: <PieChartOutlined />,
   // },
-  // {
-  //   text: "Performance",
-  //   icon: <TrendingUpOutlined />,
-  // },
+  {
+    text: "Performance",
+    icon: <TrendingUpOutlined />,
+  },
+  {
+    text: "Sales",
+    icon: <TrendingUpOutlined />,
+  },
 ];
 const superAdmin = [
   {
@@ -763,6 +767,10 @@ const superAdmin = [
   // },
   {
     text: "Medicine",
+    icon: <Groups2Outlined />,
+  },
+  {
+    text: "Inventory",
     icon: <Groups2Outlined />,
   },
   // {
@@ -806,21 +814,17 @@ const superAdmin = [
     text: "Owner",
     icon: <PieChartOutlined />,
   },
-  // {
-  //   text: "Performance",
-  //   icon: <TrendingUpOutlined />,
-  // },
+  {
+    text: "Performance",
+    icon: <TrendingUpOutlined />,
+  },
+  {
+    text: "Sales",
+    icon: <TrendingUpOutlined />,
+  },
 ];
 
 const owner = [
-  // {
-  //   text: "Owner",
-  //   icon: <PieChartOutlined />,
-  // },
-  // {
-  //   text: "Performance",
-  //   icon: <TrendingUpOutlined />,
-  // },
   {
     text: "Dashboard",
     icon: <HomeOutlined />,
@@ -837,6 +841,14 @@ const owner = [
     text: "Admins",
     icon: <AdminPanelSettingsOutlined />,
   } ,
+  {
+    text: "Performance",
+    icon: <TrendingUpOutlined />,
+  },
+  {
+    text: "Sales",
+    icon: <TrendingUpOutlined />,
+  },
 ]
 
 const Sidebar = ({

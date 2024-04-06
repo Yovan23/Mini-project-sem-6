@@ -85,7 +85,7 @@ export const themeSettings = (mode) => {
               alt: tokensDark.primary[500],
             },
           }
-        : {
+        :  {
             // palette values for light mode
             primary: {
               ...tokensLight.primary,

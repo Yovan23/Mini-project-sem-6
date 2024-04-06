@@ -94,6 +94,7 @@ body {
   background-color: #0056b3;
 }
 
+
 .role-selection {
     
   margin-bottom: 20px;
@@ -106,6 +107,53 @@ body {
 
 .radio-group input[type="radio"]:checked + label {
   margin-right: 5px;
-  cursor: pointer; /* Make radio buttons interactive */
+  cursor: pointer; 
   color: crimson;
+}
+.sign-up-text {
+  color: rgb(253, 253, 253); 
+  cursor: pointer;
+}
+
+.sign-up-form {
+  margin-top: 20px;
+}
+
+.sign-up-form h2 {
+  margin-bottom: 10px;
+}
+
+.sign-up-form .form-group {
+  margin-bottom: 15px;
+}
+
+.sign-up-form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.sign-up-form input[type="text"],
+.sign-up-form input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.sign-up-form button {
+  padding: 10px 20px;
+  background-color: blue; 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.sign-up-form button:hover {
+  background-color: darkblue; 
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
 }

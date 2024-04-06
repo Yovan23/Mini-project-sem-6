@@ -35,7 +35,19 @@ const billSchema = new mongoose.Schema({
     adminId: {
       type: String,
       // ref: 'Admin'
-  }
+  },
+  ownerName: {
+    type: String,
+    // ref: 'Admin'
+},
+adminName: {
+  type: String,
+  // ref: 'Admin'
+},
+location: {
+  type: String,
+  // ref: 'Admin'
+},
   },{timestamps:true});
 
 

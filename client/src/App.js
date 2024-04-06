@@ -192,11 +192,7 @@ import Layout from "scenes/layout";
 import Dashboard from "scenes/dashboard";
 import Bill from "scenes/customers";
 import Medicine from "scenes/Medicine";
-import Geography from "scenes/geography";
-import Overview from "scenes/overview";
-import Daily from "scenes/daily";
-import Monthly from "scenes/monthly";
-import Breakdown from "scenes/breakdown";
+import Sales from "scenes/sales/index";
 import Admin from "scenes/admin";
 import Performance from "scenes/performance";
 import Owner from "scenes/owner";
@@ -205,7 +201,6 @@ import Inventory  from "scenes/inventory";
 import LoginForm from "scenes/login";
 import Order from "scenes/order";
 import Sidebar from "./components/Sidebar"; // Import the Sidebar component
-import { RoleProvider } from '../src/assets/RoleContext';
 
 
 function App() {
@@ -228,7 +223,6 @@ function App() {
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <RoleProvider> {/* Wrap your entire application with RoleProvider */}
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<LoginForm handleLogin={handleLogin} />} />
@@ -237,20 +231,15 @@ function App() {
                 <Route path="/Bill" element={<Bill />} />
                 <Route path="/medicine" element={<Medicine />} />
                 <Route path="/Inventory" element={<Inventory />} />
-                <Route path="/Geography" element={<Geography />} />
-                <Route path="/Overview" element={<Overview />} />
-                <Route path="/Daily" element={<Daily />} />
-                <Route path="/Monthly" element={<Monthly />} />
-                <Route path="/Breakdown" element={<Breakdown />} />
                 <Route path="/Admin" element={<Admin />} />
                 <Route path="/Owner" element={<Owner />} />
                 <Route path="/Performance" element={<Performance />} />
                 <Route path="/Admins" element={<Admins />} />              
                 <Route path="/Order" element={<Order />} />
+                <Route path="/Sales" element={<Sales />} />
               </Route>
             </Routes>
-            <Sidebar /> {/* Include the Sidebar component */}
-          </RoleProvider>
+            <Sidebar /> 
         </ThemeProvider>
       </BrowserRouter>
     </div>

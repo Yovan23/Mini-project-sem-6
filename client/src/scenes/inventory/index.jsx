@@ -6,52 +6,53 @@ import Header from "components/Header";
 import axios from "axios";
 import { Snackbar } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
+
 const Inventory = () => {
   const theme = useTheme();
   const [validationErrors, setValidationErrors] = useState({});
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [updateData, setUpdateData] = useState({});
   const [data, setData] = useState();
-  const [rows,setRows] = useState([]);
+  const [rows, setRows] = useState([]);
   const [rowData, setRowData] = useState({});
   const [inventoryId, setInventoryId] = useState('');
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const { isLoading, refetch } = useGetInventoryQuery();
   const [medicineUpdate] = useInventoryUpdateMutation();
-    const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      
-      try {
-        const response = await axios.get('http://localhost:5000/api/auth/inventoryFind', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setData(response.data);
-        console.log(response.data);
-        setInventoryId(response.data[0]._id);
-        const rows = response.data[0].medicines ? response.data[0].medicines.map((medicine, index) => ({
-          id: index + 1,
-          medicineId: medicine.medicineId || '',
-          medicineName: medicine.medicineName || '',
-          category: medicine.category || '',
-          unitPrice: medicine.unitPrice || 0,
-          stock: medicine.stock || 0,
-          place: medicine.place || '',
-        })) : [];
-        setRows(rows); 
-      } catch (error) {
-        console.error('Error fetching inventory data:', error);
-      }
-    };
-    const handleRowClick = (rowData) => {
-      setRowData(rowData);
-    };
-    useEffect(() => {
+  const fetchData = async () => {
+  const token = localStorage.getItem('token');
+
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/inventoryFind', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setData(response.data);
+      console.log(response.data);
+      setInventoryId(response.data[0]._id);
+      const rows = response.data[0].medicines ? response.data[0].medicines.map((medicine, index) => ({
+        id: index + 1,
+        medicineId: medicine.medicineId || '',
+        medicineName: medicine.medicineName || '',
+        category: medicine.category || '',
+        unitPrice: medicine.unitPrice || 0,
+        stock: medicine.stock || 0,
+        place: medicine.place || '',
+      })) : [];
+      setRows(rows);
+    } catch (error) {
+      console.error('Error fetching inventory data:', error);
+    }
+  };
+  const handleRowClick = (rowData) => {
+    setRowData(rowData);
+  };
+  useEffect(() => {
     fetchData();
   }, []);
-  
+
 
   useEffect(() => {
     refetch();
@@ -59,7 +60,7 @@ const Inventory = () => {
 
   const handleUpdate = (rowData) => {
     setIsUpdateDialogOpen(true);
-    setRowData(rowData); 
+    setRowData(rowData);
     setUpdateData(rowData);
   };
 
@@ -76,10 +77,10 @@ const Inventory = () => {
     setUpdateData({});
     fetchData();
   };
- 
+
   const handleFormSubmit = async () => {
     try {
-      const { medicineId } = rowData || {}; // Get the medicineId from rowData, default to an empty object if rowData is undefined
+      const { medicineId } = rowData || {};
       if (!medicineId) {
         console.error("Error: medicineId is undefined");
         return;
@@ -91,9 +92,8 @@ const Inventory = () => {
     }
     handleCloseUpdateDialog();
   };
-  
 
-  
+
 
   const columns = [
     { field: 'medicineId', headerName: 'Medicine ID', width: 150 },
@@ -112,19 +112,19 @@ const Inventory = () => {
           color="primary"
           onClick={() => handleUpdate(params.row)}
         >
-           {<EditIcon style={{ color: 'white' }} />}
+          {<EditIcon style={{ color: 'white' }} />}
         </Button>
       ),
     },
   ];
-//   const rows = response.data[0].medicines ? response.data[0].medicines.map((medicine, index) => ({
-//     id: index + 1,
-//     medicineID: medicine.medicineID || '',
-//     medicineName: medicine.medicineName || '',
-//     unitPrice: medicine.unitPrice || 0,
-//     stock: medicine.stock || 0,
-//     place: medicine.place || '',
-// })) : [];
+  //   const rows = response.data[0].medicines ? response.data[0].medicines.map((medicine, index) => ({
+  //     id: index + 1,
+  //     medicineID: medicine.medicineID || '',
+  //     medicineName: medicine.medicineName || '',
+  //     unitPrice: medicine.unitPrice || 0,
+  //     stock: medicine.stock || 0,
+  //     place: medicine.place || '',
+  // })) : [];
 
 
   return (
@@ -163,13 +163,54 @@ const Inventory = () => {
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20]}
           handleRowClick
-          // checkboxSelection
+        // checkboxSelection
         />
       </Box>
- 
+
       <Dialog open={isUpdateDialogOpen} onClose={handleCloseUpdateDialog} sx={{ padding: '20px' }}>
         <DialogTitle>Update Place</DialogTitle>
         <DialogContent>
+          {/* <TextField
+            label="Medicine Name"
+            name="Medicine Name"
+            value={updateData.medicineName || ''}
+            onChange={(e) => handleInputChange(e, 'medicineName')}
+            error={!!validationErrors.medicineName}
+            helperText={validationErrors.medicineName}
+            fullWidth
+            margin="normal"
+          />  <TextField
+            label="Category"
+            name="Category"
+            value={updateData.Category || ''}
+            onChange={(e) => handleInputChange(e, 'Category')}
+            error={!!validationErrors.Category}
+            helperText={validationErrors.Category}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Unit Price"
+            name="unitPrice"
+            value={updateData.unitPrice || ''}
+            onChange={(e) => handleInputChange(e, 'unitPrice')}
+            error={!!validationErrors.unitPrice}
+            helperText={validationErrors.unitPrice}
+            fullWidth
+            margin="normal"
+          /> */}
+          {localStorage.getItem("role") !== 'admin' && (
+      <TextField
+        label="Stock"
+        name="stock"
+        value={updateData.stock || ''}
+        onChange={(e) => handleInputChange(e, 'stock')}
+        error={!!validationErrors.stock}
+        helperText={validationErrors.stock}
+        fullWidth
+        margin="normal"
+      />
+    )}
           <TextField
             label="Place"
             name="Place"
@@ -186,9 +227,9 @@ const Inventory = () => {
           <Button onClick={handleCloseUpdateDialog} color="primary" sx={{ color: '#ED2939' }}>
             Cancel
           </Button>
-   <Button onClick={() => handleFormSubmit(updateData)} color="primary" sx={{ color: '#00FF00' }}>
-  Update
-</Button>
+          <Button onClick={() => handleFormSubmit(updateData)} color="primary" sx={{ color: '#00FF00' }}>
+            Update
+          </Button>
         </DialogActions>
       </Dialog>
       <Snackbar

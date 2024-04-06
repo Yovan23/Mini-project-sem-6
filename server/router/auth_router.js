@@ -35,6 +35,8 @@ router.route('/billCreate').post((authenticateUser),Controllers.billCreate);
 router.route('/billFind').get((authenticateUser),Controllers.billFind);
 router.route('/billFindOne/:billId').get(Controllers.billFindOne);
 router.route('/billUpdate/:id').put(Controllers.addMedicineToBillController);
+router.route('/billDelete/:billId').delete((authenticateUser),Controllers.billDelete);
+
 
 router.route('/createOrder').post((authenticateUser),Controllers.createOrder);
 router.route('/findOrder').get((authenticateUser),Controllers.findOrder);

@@ -384,10 +384,17 @@ import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from
 import { useGetMedicinesQuery } from "state/api";
 import Header from "components/Header";
 import axios from "axios";
+import { Snackbar } from "@mui/material";
 
 const Customers = () => {
   const { data: medicinesData, isLoading: medicinesLoading } = useGetMedicinesQuery();
   const [isOpenForm, setIsOpenForm] = useState(false);
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const showSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setIsSnackbarOpen(true);
+  };
   const [formData, setFormData] = useState({
     name: "",
     phoneNumber: "",
@@ -428,8 +435,8 @@ const Customers = () => {
 
     try {
       const { name: customerName, phoneNumber: phoneNo, medicines, medicineName, quantity } = formData;
-      if (!customerName || !phoneNo ) {
-        alert("Customer name and phone number are required.");
+      if (!customerName || !phoneNo || !medicineName || !quantity) {
+        showSnackbar("Customer name and phone number are required.");
         return;
       }
     
@@ -450,11 +457,17 @@ const Customers = () => {
             Authorization: `Bearer ${token}`, 
           },
     });
-    console.log("Bill created successfully:", response.data);
+    showSnackbar("Bill created successfully");
   
     if (response.data.errors && response.data.errors.length > 0) {
       const errorMessage = response.data.errors[0].error;
-      alert(`Error creating bill: ${errorMessage}`);
+      showSnackbar(`Error creating bill: ${errorMessage}`);
+      const billId = response.data.data.billId;
+            await axios.delete(`http://localhost:5000/api/auth/billDelete/${billId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
       return;
     }
     const fetchedBillId = response.data.data.billId; 
@@ -498,6 +511,7 @@ const Customers = () => {
 
       const handleMedicineAdd = async () => {
         const { medicineName, quantity } = formData;
+        
         if (medicineName && quantity) {
           const selectedMedicine = medicinesData.find(medicine => medicine.medicineName === medicineName);
           if (selectedMedicine) {
@@ -520,10 +534,10 @@ const Customers = () => {
             });
             setSuggestions([]);
           } else {
-            console.error("Selected medicine not found in medicinesData");
+            showSnackbar("Selected medicine not found in medicinesData");
           }
         } else {
-          console.error("Medicine name and quantity are required");
+          showSnackbar("Medicine name and quantity are required");
         }
       
       if (medicinesData) {
@@ -747,7 +761,16 @@ const Customers = () => {
   </Box>
 </Modal>
 
-
+<Snackbar
+        open={isSnackbarOpen}
+        message={snackbarMessage}
+        autoHideDuration={2000}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        onClose={() => setIsSnackbarOpen(false)}
+      />
 
       </Box>
       <Typography sx={{ marginTop:"55px" , fontSize:"21px"}}>Steps to create billing:- </Typography>

@@ -195,7 +195,8 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
+import { Snackbar } from "@mui/material";
 import "./Loginform.css";
 
 const LoginForm = () => {
@@ -203,8 +204,17 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [role,setRole ] = useState("admin")
   const [errorMessage, setErrorMessage] = useState("");
+  const [showSignUpForm, setShowSignUpForm] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
+  const showSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setIsSnackbarOpen(true);
+  };
   const handleLogin = async (token) => {
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
@@ -233,6 +243,24 @@ const LoginForm = () => {
     }
   };
 
+  const handleSignUpSubmit = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/register", {
+        username: newUsername,
+        password: newPassword,
+        role: "superAdmin" 
+      });
+      showSnackbar("Sign up successful!");
+      console.log("Sign Up Response:", response.data);
+  
+      setNewUsername("");
+      setNewPassword("");
+      setShowSignUpForm(false);
+     
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
   return (
     <div className="login-form">
       <h2>Login</h2>
@@ -293,7 +321,55 @@ const LoginForm = () => {
 </div>
       <button className="login-button" onClick={handleLoginSubmit}>Login</button>
       <p className={`error-message ${errorMessage ? "" : "hide"}`}>{errorMessage}</p>
+      {!showSignUpForm && (
+        <p className="sign-up-text" onClick={() => setShowSignUpForm(true)}>Sign Up</p>
+      )}
+
+{showSignUpForm && (
+        <div className="sign-up-form">
+          <h2>Sign Up</h2>
+          <div className="form-group">
+            <label htmlFor="newUsername">Username:</label>
+            <input
+              type="text"
+              id="newUsername"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="newPassword">Password:</label>
+            <input
+              type="password"
+              id="newPassword"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+      <label htmlFor="newRole">Role:</label>
+      <input
+        type="text"
+        id="newRole"
+        value="superAdmin" 
+        readOnly 
+      />
     </div>
+          <button className="sign-up-button" onClick={handleSignUpSubmit}>Sign Up</button>
+        </div>
+      )}
+      <Snackbar
+        open={isSnackbarOpen}
+        message={snackbarMessage}
+        autoHideDuration={2000}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        onClose={() => setIsSnackbarOpen(false)}
+      />
+    </div>
+    
   );
 };
 

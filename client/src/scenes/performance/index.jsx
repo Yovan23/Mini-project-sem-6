@@ -1,4 +1,3 @@
-
 import React, { useState,useEffect } from 'react';
 import { Box, useTheme,Typography } from '@mui/material'; 
 import { useGetBillsQuery } from 'state/api';
@@ -51,12 +50,12 @@ const Performance = () => {
     try {
       const response = await axios.get('http://localhost:5000/api/auth/billFind', {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`, 
         },
       });
       setData(response.data);
     } catch (error) {
-      throw new Error('hereistheerro'); // Throw an error if the request fails
+      throw new Error('hereistheerro');
     }
   }
   
@@ -123,13 +122,23 @@ const Performance = () => {
     {
       field: "customerName",
       headerName: "customer Name",
-      flex: .5,
+      flex: .7,
     },
     {
       field: "phoneNo",
       headerName: "phone No.",
-      flex: 1,
+      flex: .6,
 
+    },
+    {
+      field: "ownerName",
+      headerName: "Owner ",
+      flex: .5,
+    },
+    {
+      field: "adminName",
+      headerName: "Admin ",
+      flex: .5,
     },
     {
       field: "totalAmount",

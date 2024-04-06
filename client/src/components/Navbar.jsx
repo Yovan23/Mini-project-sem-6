@@ -167,6 +167,10 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
 
   const handleLogout = () => {
     handleClose(); // Close the menu before redirecting
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+
     // Redirect to the login page using navigate
     navigate("/login");
   };
@@ -200,12 +204,15 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
 
         {/* RIGHT SIDE */}
         <FlexBetween gap="1.5rem">
-          <IconButton onClick={() => dispatch(setMode())}>
+          {/* <IconButton onClick={() => dispatch(setMode())}>
             {theme.palette.mode === "dark" ? (
               <DarkModeOutlined sx={{ fontSize: "25px" }} />
             ) : (
               <LightModeOutlined sx={{ fontSize: "25px" }} />
             )}
+          </IconButton> */}
+          <IconButton>
+            <DarkModeOutlined sx={{ fontSize: "25px" }} />
           </IconButton>
           <IconButton>
             <SettingsOutlined sx={{ fontSize: "25px" }} />
