@@ -33,6 +33,7 @@ router.route('/ownerDelete/:id').delete(Controllers.ownerDelete);
 
 router.route('/billCreate').post((authenticateUser),Controllers.billCreate);
 router.route('/billFind').get((authenticateUser),Controllers.billFind);
+router.route('/billFindSale').get((authenticateUser),Controllers.billFindSale);
 router.route('/billFindOne/:billId').get(Controllers.billFindOne);
 router.route('/billUpdate/:id').put(Controllers.addMedicineToBillController);
 router.route('/billDelete/:billId').delete((authenticateUser),Controllers.billDelete);
@@ -40,9 +41,9 @@ router.route('/billDelete/:billId').delete((authenticateUser),Controllers.billDe
 
 router.route('/createOrder').post((authenticateUser),Controllers.createOrder);
 router.route('/findOrder').get((authenticateUser),Controllers.findOrder);
-router.route('/findAllOrders').get(Controllers.findAllOrders);
-router.route('/updateOrder/:orderId').put(Controllers.updateOrder);
-router.route('/deleteOrder/:orderId').delete(Controllers.deleteOrder);
+router.route('/findAllOrders').get((authenticateUser),Controllers.findAllOrders);
+router.route('/updateOrder/:orderId').put((authenticateUser),Controllers.updateOrder);
+router.route('/deleteOrder/:orderId').delete((authenticateUser),Controllers.deleteOrder);
 
 router.route('/inventoryFind').get((authenticateUser),Controllers.inventoryFind);
 // router.route('/inventoryUpdate/:medicineID').put(Controllers.inventoryUpdate);

@@ -200,7 +200,9 @@ import Admins from "scenes/adminno";
 import Inventory  from "scenes/inventory";
 import LoginForm from "scenes/login";
 import Order from "scenes/order";
-import Sidebar from "./components/Sidebar"; // Import the Sidebar component
+import OrderPage from "scenes/orderpage";
+import OrderList from "scenes/orderlist";
+import Sidebar from "./components/Sidebar"; 
 
 
 function App() {
@@ -236,6 +238,8 @@ function App() {
                 <Route path="/Performance" element={<Performance />} />
                 <Route path="/Admins" element={<Admins />} />              
                 <Route path="/Order" element={<Order />} />
+                <Route path="/OrderPage" element={<OrderPage />} />
+                <Route path="/OrderList" element={<OrderList />} />
                 <Route path="/Sales" element={<Sales />} />
               </Route>
             </Routes>

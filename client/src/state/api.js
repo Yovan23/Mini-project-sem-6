@@ -104,6 +104,9 @@ getInventory: build.query({
       query: () => "medicineFind",
       providesTags: ["Medicines"],
     }),
+    getOrder: build.query({
+      query: () => "findOrder",
+    }),
     medicineDelete: build.mutation({
       query: (id) => ({
         url: `medicineDelete/${id}`,
@@ -147,6 +150,7 @@ export const {
   useMedicineDeleteMutation,
   useMedicineUpdateMutation,
   useInventoryUpdateMutation,
+  useGetOrderQuery,
   useGetInventoryQuery,
   useGetUserPerformanceQuery,
   useGetDashboardQuery,

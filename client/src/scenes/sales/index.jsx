@@ -5,6 +5,7 @@ import Header from "components/Header";
 import axios from "axios";
 import {  startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
+
 const Sales = () => {
     const theme = useTheme();
     const [data, setData] = useState([]);
@@ -13,25 +14,29 @@ const Sales = () => {
 
   
 const userRole = localStorage.getItem("role");
-    const fetchSalesData = async (startDate, endDate) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/auth/billFind', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                params: {
-                    startDate,
-                    endDate
-                }
-            });
-            setData(response.data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        } finally {
-            setIsLoading(false);
-        }
+const fetchSalesData = async (startDate, endDate) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/api/auth/billFindSale', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params: {
+                filter: selectedOption,
+                startDate: startDate.toISOString(), 
+                endDate: endDate.toISOString()    
+            }
+        });
+        // console.log(startDate);
+        // console.log(endDate);
+        // console.log(response.data);
+        setData(response.data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    } finally {
+        setIsLoading(false);
     }
+}
 
     useEffect(() => {
         let startDate, endDate;
@@ -39,11 +44,15 @@ const userRole = localStorage.getItem("role");
         switch (selectedOption) {
             case 'today':
                 startDate = startOfDay(today);
+                // console.log(startDate);
                 endDate = endOfDay(today);
                 break;
             case 'thisWeek':
                 startDate = startOfWeek(today);
+                // console.log(" S",startDate);                
                 endDate = endOfWeek(today);
+                // console.log(" E",endDate);                
+
                 break;
             case 'thisMonth':
                 startDate = startOfMonth(today);
@@ -219,9 +228,9 @@ const userRole = localStorage.getItem("role");
     return (
         <Box m="1.5rem 2.5rem">
             <Header title="SALES" subtitle="See the Report.." />
-            <Box width="100%" marginBottom="2rem">
-                <FormControl fullWidth sx={{ marginBottom: '1rem' }}>
-                    <InputLabel id="select-option-label">Select Option</InputLabel>
+            <Box width="100%" marginBottom="20px" marginTop="10px">
+                <FormControl fullWidth sx={{ marginBottom: '20px' }}>
+                    <InputLabel id="select-option-label"></InputLabel>
                     <Select
                         labelId="select-option-label"
                         value={selectedOption}
@@ -284,3 +293,4 @@ const userRole = localStorage.getItem("role");
 };
 
 export default Sales;
+

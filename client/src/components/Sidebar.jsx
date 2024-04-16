@@ -684,7 +684,6 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
-var f = false;
 const admin = [
   {
     text: "Dashboard",
@@ -739,10 +738,6 @@ const admin = [
     text: "Admins",
     icon: <AdminPanelSettingsOutlined />,
   } ,
-  // {
-  //   text: "Owner",
-  //   icon: <PieChartOutlined />,
-  // },
   {
     text: "Performance",
     icon: <TrendingUpOutlined />,
@@ -750,6 +745,14 @@ const admin = [
   {
     text: "Sales",
     icon: <TrendingUpOutlined />,
+  },
+  {
+    text: "OrderPage",
+    icon: <PieChartOutlined />,
+  },
+  {
+    text: "OrderList",
+    icon: <PieChartOutlined />,
   },
 ];
 const superAdmin = [
@@ -822,6 +825,14 @@ const superAdmin = [
     text: "Sales",
     icon: <TrendingUpOutlined />,
   },
+  {
+    text: "OrderPage",
+    icon: <PieChartOutlined />,
+  },
+  {
+    text: "OrderList",
+    icon: <PieChartOutlined />,
+  },
 ];
 
 const owner = [
@@ -848,6 +859,14 @@ const owner = [
   {
     text: "Sales",
     icon: <TrendingUpOutlined />,
+  },
+  {
+    text: "OrderPage",
+    icon: <PieChartOutlined />,
+  },
+  {
+    text: "OrderList",
+    icon: <PieChartOutlined />,
   },
 ]
 

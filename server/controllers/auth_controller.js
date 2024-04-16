@@ -632,6 +632,55 @@ const billFind = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+const billFindSale = async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const owner = await Owner.findOne({ _id: loggedInUser.userId });
+    let startDate, endDate;
+    const today = new Date();
+    // console.log(req.query.filter);
+    switch (req.query.filter) {
+      case 'today':
+        startDate = new Date(today);
+        startDate.setHours(0, 0, 0, 0); 
+        endDate = new Date(today);
+        endDate.setHours(23, 59, 59, 999); 
+        break;
+      case 'thisWeek':
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - today.getDay()); 
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setDate(today.getDate() - today.getDay() + 6); 
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'thisMonth':
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1); 
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); 
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      default:
+        res.status(400).json({ error: 'Invalid filter' });
+        return;
+    }
+    let findBill;
+    if (loggedInUser.role === 'admin') {
+      findBill = await Bill.find({ adminId: loggedInUser.userId, createdAt: { $gte: startDate, $lte: endDate } });
+    } else if (loggedInUser.role === 'owner') {
+      findBill = await Bill.find({ ownerName: owner.username, createdAt: { $gte: startDate, $lte: endDate } });
+    } else if (loggedInUser.role === 'superAdmin') {
+      findBill = await Bill.find({ createdAt: { $gte: startDate, $lte: endDate } });
+    } else {
+      res.status(403).json({ error: 'Unauthorized' });
+      return;
+    }
+    res.status(200).json(findBill);
+  } catch (error) {
+    console.error('Error finding bills:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 
 const billFindOne = async (req, res) => {
@@ -764,85 +813,151 @@ const addMedicineToBillController = async (req, res) => {
     }
   };
   
+  // const findOrder = async (req, res) => {
+  //   try {
+  //     const loggedInUserId = req.user.userId;
+  
+  //     const orders = await Order.find({ userId: loggedInUserId });
+  //     if (!orders || orders.length === 0) {
+  //       return res.status(404).json({ message: 'No orders found for the specified admin' });
+  //     }
+      
+  //     res.status(200).json({ orders });
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({ error: 'Internal Server Error' });
+  //   }
+  // };
   const findOrder = async (req, res) => {
     try {
       const loggedInUserId = req.user.userId;
-console.log(loggedInUserId);
+      const loggedInUserRole = req.user.role;
   
-      const orders = await Order.find({ userId: loggedInUserId });
+      let query = {};
   
-      if (!orders || orders.length === 0) {
-        return res.status(404).json({ message: 'No orders found for the specified admin' });
+      if (loggedInUserRole === 'admin') {
+        query = { userId: loggedInUserId ,superAdminStatus: 'Pending'};
+      } else if (loggedInUserRole === 'owner') {
+        const owner = await Owner.findOne({ _id: loggedInUserId });
+        if (!owner) {
+          return res.status(404).json({ message: 'Owner not found' });
+        }
+        query = { ownerName: owner.username,superAdminStatus: 'Pending' };
+      } else if (loggedInUserRole === 'superAdmin') {
+      query = { ownerStatus: 'Approved', superAdminStatus: 'Pending' };
+      } else {
+        return res.status(403).json({ error: 'Unauthorized' });
       }
-      
+  
+      const orders = await Order.find(query);
+  
+      // if (!orders || orders.length === 0) {
+      //   return res.status(404).json({ message: 'No orders found for the specified user' });
+      // }
       res.status(200).json({ orders });
     } catch (error) {
-      console.error(error);
+      console.error('Error finding orders:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
   
   const findAllOrders = async (req, res) => {
     try {
-      const orders = await Order.find();
+      const loggedInUserId = req.user.userId;
+      const loggedInUserRole = req.user.role;
   
-      if (!orders || orders.length === 0) {
-        return res.status(404).json({ message: 'No orders found' });
+      let query = {};
+  
+      if (loggedInUserRole === 'admin') {
+        query = { userId: loggedInUserId};
+      } else if (loggedInUserRole === 'owner') {
+        const owner = await Owner.findOne({ _id: loggedInUserId });
+        if (!owner) {
+          return res.status(404).json({ message: 'Owner not found' });
+        }
+        query = { ownerName: owner.username };
+      } else if (loggedInUserRole === 'superAdmin') {
+      query = {  };
+      } else {
+        return res.status(403).json({ error: 'Unauthorized' });
       }
   
+      const orders = await Order.find(query);
+ 
       res.status(200).json({ orders });
     } catch (error) {
-      console.error(error);
+      console.error('Error finding orders:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
   const updateOrder = async (req, res) => {
+    const { orderId } = req.params;
+    const { ownerStatus, superAdminStatus } = req.body;
+
     try {
-        const { orderId } = req.params;
-        const { orderItems } = req.body;
-
         const order = await Order.findById(orderId);
-
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            return res.status(404).json({ message: 'Order not found' });
         }
 
-        for (const newItem of orderItems) {
-            newItem.quantity = Number(newItem.quantity);
-
-            const medicine = await Med.findById(newItem.medicineId);
-
-            if (!medicine) {
-                return res.status(404).json({ error: `Medicine not found for ID: ${newItem.medicineId}` });
+        // Check if superAdminStatus is changing
+        if (superAdminStatus && order.superAdminStatus !== superAdminStatus) {
+            // Fetch the corresponding admin
+            const admin = await Admin.findOne({ username: order.Username });
+            if (!admin) {
+                return res.status(404).json({ message: 'Admin not found' });
             }
 
-            const existingIndex = order.orderItems.findIndex(item => item.medicineId.toString() === newItem.medicineId);
-
-            if (existingIndex !== -1) {
-                order.orderItems[existingIndex].quantity += newItem.quantity;
-                order.orderItems[existingIndex].subTotal += (newItem.quantity * medicine.unitPrice);
-                order.totalAmount += (newItem.quantity * medicine.unitPrice)  ;
-              } else {
-                const subTotal = newItem.quantity * medicine.unitPrice;
-                const totalPrice =  subTotal;
-                order.orderItems.push({
-                    medicineId: newItem.medicineId,
-                    medicineName: medicine.medicineName,
-                    quantity: newItem.quantity,
-                    unitPrice: medicine.unitPrice,
-                    subTotal: subTotal,
-                    totalAmount: totalPrice,
-                });
-                order.totalAmount += totalPrice;
+            const adminInventory = await Inventory.findOne({ adminId: admin.adminId });
+            if (!adminInventory) {
+                return res.status(404).json({ message: 'Admin Inventory not found' });
             }
+            const loggedInUser = req.user.userId;
+            const user = await User.findOne({ _id: loggedInUser})
+            console.log(user.username);
+            const superAdminInventory = await Inventory.findOne({ adminId: user.username });
+            if (!superAdminInventory) {
+                return res.status(404).json({ message: 'SuperAdmin Inventory not found' });
+            }
+
+            order.orderItems.forEach(async (item) => {
+                const { medicineName, quantity } = item;
+                const medicineIndex = adminInventory.medicines.findIndex(m => m.medicineName === medicineName);
+                if (medicineIndex !== -1) {
+                    adminInventory.medicines[medicineIndex].stock += quantity;
+                } else {
+                    return res.status(404).json({ message: `Medicine ${medicineName} not found in Admin Inventory` });
+                }
+
+                const superAdminMedicineIndex = superAdminInventory.medicines.findIndex(m => m.medicineName === medicineName);
+                if (superAdminMedicineIndex !== -1) {
+                    superAdminInventory.medicines[superAdminMedicineIndex].stock -= quantity;
+                } else {
+                    superAdminInventory.medicines.push({ medicineName, stock: quantity });
+                }
+            });
+
+            await adminInventory.save();
+            await superAdminInventory.save();
         }
-  const updatedOrder = await order.save();
-        res.status(200).json({ message: 'Order items updated successfully', updatedOrder });
+
+        if (ownerStatus) {
+            order.ownerStatus = ownerStatus;
+        }
+        if (superAdminStatus) {
+            order.superAdminStatus = superAdminStatus;
+        }
+
+        // Save the updated order
+        await order.save();
+
+        res.status(200).json({ message: 'Order status updated successfully', order });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error updating order status:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
+
   const deleteOrder = async (req, res) => {
     try {
       const orderId = req.params.orderId;
@@ -1012,6 +1127,6 @@ const inventoryUpdate = async (req, res) => {
 module.exports = { home,register,login,change_Password,medicine , medicineFind,medicineUpdate,medicineDelete,
      adminAdd , adminFind ,adminUpdate,adminDelete ,adminsFind, 
      ownerAdd,ownerFind,ownerUpdate,ownerDelete ,
-     billCreate ,billFind, addMedicineToBillController ,billFindOne, billDelete,
+     billCreate ,billFind, addMedicineToBillController ,billFindOne, billDelete,billFindSale,
      createOrder,findOrder,findAllOrders,updateOrder,deleteOrder,
      inventoryFind,inventoryUpdate,};

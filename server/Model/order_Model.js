@@ -88,6 +88,7 @@ const orderSchema = new mongoose.Schema({
   },
   superAdminStatus: {
     type: String,
+    enum: ['Pending', 'Shipping'],
     default: 'Pending',
   },
 }, { timestamps: true });
